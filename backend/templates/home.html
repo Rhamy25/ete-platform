@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ETE - Entreprise de Traitement Environnemental | Burkina Faso</title>
+  <meta name="description" content="ETE est une entreprise burkinabè spécialisée dans la collecte, le traitement et la valorisation des déchets. Ensemble pour un environnement plus propre et durable.">
+  <meta name="keywords" content="ETE, traitement des déchets, Burkina Faso, environnement, collecte d'ordures, gestion déchets, Ouagadougou">
+  <meta name="author" content="ETE Burkina Faso">
+  <link rel="icon" href="/static/images/logo.png" type="image/png">
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Poppins', 'sans-serif'],
+          },
+          colors: {
+            primary: '#0f766e', // vert émeraude
+            secondary: '#1e3a8a', // bleu profond
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    html {
+      scroll-behavior: smooth;
+    }
+
+    .hero-bg {
+      background: linear-gradient(135deg, rgba(15, 118, 110, 0.85), rgba(30, 58, 138, 0.75)), 
+      url('https://images.unsplash.com/photo-1607962837359-59e0de6c27e2?auto=format&fit=crop&w=1920&q=80');
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+    }
+
+    .hover-lift {
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hover-lift::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+      transition: left 0.5s;
+    }
+
+    .hover-lift:hover::before {
+      left: 100%;
+    }
+
+    .hover-lift:hover {
+      transform: translateY(-8px) scale(1.02);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+    }
+
+    .fade-in-up {
+      opacity: 0;
+      transform: translateY(30px);
+      animation: fadeInUp 0.8s ease-out forwards;
+    }
+
+    .fade-in-left {
+      opacity: 0;
+      transform: translateX(-30px);
+      animation: fadeInLeft 0.8s ease-out forwards;
+    }
+
+    .fade-in-right {
+      opacity: 0;
+      transform: translateX(30px);
+      animation: fadeInRight 0.8s ease-out forwards;
+    }
+
+    @keyframes fadeInUp {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes fadeInLeft {
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    @keyframes fadeInRight {
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    .gradient-text {
+      background: linear-gradient(135deg, #0f766e, #1e3a8a);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .glass-card {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .floating {
+      animation: float 6s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-20px); }
+    }
+
+    .pulse-glow {
+      animation: pulseGlow 2s ease-in-out infinite alternate;
+    }
+
+    @keyframes pulseGlow {
+      from { box-shadow: 0 0 20px rgba(15, 118, 110, 0.5); }
+      to { box-shadow: 0 0 30px rgba(15, 118, 110, 0.8), 0 0 40px rgba(15, 118, 110, 0.6); }
+    }
+
+    .typing-effect::after {
+      content: '|';
+      animation: blink 1s infinite;
+    }
+
+    @keyframes blink {
+      0%, 50% { opacity: 1; }
+      51%, 100% { opacity: 0; }
+    }
+  </style>
+</head>
+
+<body class="font-sans text-gray-800">
+
+  <!-- HEADER -->
+  <header class="fixed top-0 left-0 right-0 z-50 glass-card shadow-xl border-b border-white/20">
+    <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+      <a href="#" class="flex items-center space-x-3 fade-in-left">
+        <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-secondary p-2 pulse-glow">
+          <svg class="w-full h-full text-white" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+          </svg>
+        </div>
+        <div>
+          <span class="text-2xl font-black gradient-text">ETE</span>
+          <p class="text-xs text-gray-600 font-medium">Traitement Environnemental</p>
+        </div>
+      </a>
+      <nav class="hidden md:flex space-x-2">
+        <a href="#accueil" class="hover:text-primary transition-all px-4 py-2 rounded-lg hover:bg-primary/10 font-semibold">Accueil</a>
+        <a href="#services" class="hover:text-primary transition-all px-4 py-2 rounded-lg hover:bg-primary/10 font-semibold">Services</a>
+        <a href="#apropos" class="hover:text-primary transition-all px-4 py-2 rounded-lg hover:bg-primary/10 font-semibold">À propos</a>
+        <a href="#zones" class="hover:text-primary transition-all px-4 py-2 rounded-lg hover:bg-primary/10 font-semibold">Zones</a>
+        <a href="#contact" class="hover:text-primary transition-all px-4 py-2 rounded-lg hover:bg-primary/10 font-semibold">Contact</a>
+      </nav>
+      <a href="#contact" class="hidden md:inline-block bg-gradient-to-r from-primary to-secondary text-white px-6 py-3 rounded-xl font-bold hover:shadow-lg hover:scale-105 transition-all duration-300">
+        Demander un devis
+      </a>
+      <button id="menu-btn" class="md:hidden p-2 text-primary hover:bg-primary/10 rounded-lg transition-all">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+        </svg>
+      </button>
+    </div>
+    <div id="mobile-menu" class="hidden md:hidden glass-card border-t border-white/20">
+      <nav class="flex flex-col p-4 space-y-3">
+        <a href="#accueil" class="hover:text-primary hover:bg-primary/10 px-3 py-2 rounded-lg transition-all">Accueil</a>
+        <a href="#services" class="hover:text-primary hover:bg-primary/10 px-3 py-2 rounded-lg transition-all">Services</a>
+        <a href="#apropos" class="hover:text-primary hover:bg-primary/10 px-3 py-2 rounded-lg transition-all">À propos</a>
+        <a href="#zones" class="hover:text-primary hover:bg-primary/10 px-3 py-2 rounded-lg transition-all">Zones</a>
+        <a href="#contact" class="hover:text-primary hover:bg-primary/10 px-3 py-2 rounded-lg transition-all">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- HERO -->
+  <section id="accueil" class="hero-bg text-white min-h-screen flex items-center justify-center text-center px-6 relative overflow-hidden">
+    <!-- Particles de fond -->
+    <div class="absolute inset-0 opacity-20">
+      <div class="floating absolute top-20 left-10 w-4 h-4 bg-white rounded-full"></div>
+      <div class="floating absolute top-40 right-20 w-6 h-6 bg-white/50 rounded-full" style="animation-delay: 1s;"></div>
+      <div class="floating absolute bottom-32 left-20 w-3 h-3 bg-white/70 rounded-full" style="animation-delay: 2s;"></div>
+      <div class="floating absolute top-60 right-40 w-5 h-5 bg-white/40 rounded-full" style="animation-delay: 3s;"></div>
+    </div>
+    
+    <div class="relative z-10">
+      <div class="fade-in-up">
+        <h1 class="text-5xl md:text-7xl font-black mb-6 leading-tight">
+          <span class="block">Entreprise de</span>
+          <span class="block gradient-text text-white typing-effect">Traitement Environnemental</span>
+        </h1>
+      </div>
+      
+      <div class="fade-in-up" style="animation-delay: 0.3s;">
+        <p class="text-xl md:text-2xl mb-10 max-w-3xl mx-auto leading-relaxed font-light">
+          Ensemble, construisons un Burkina Faso plus propre grâce à la collecte et au traitement écologique des déchets.
+        </p>
+      </div>
+      
+      <div class="fade-in-up flex flex-col sm:flex-row gap-6 justify-center" style="animation-delay: 0.6s;">
+        <a href="#services" class="bg-gradient-to-r from-primary to-secondary hover:from-secondary hover:to-primary text-white px-8 py-4 rounded-xl font-bold text-lg hover:shadow-2xl hover:scale-105 transition-all duration-300">
+          Découvrir nos services
+        </a>
+        <a href="#contact" class="bg-white/20 backdrop-blur-sm border-2 border-white/50 text-white hover:bg-white hover:text-primary px-8 py-4 rounded-xl font-bold text-lg transition-all duration-300">
+          Nous contacter
+        </a>
+      </div>
+
+      <!-- Stats -->
+      <div class="fade-in-up grid grid-cols-2 md:grid-cols-4 gap-6 mt-16 max-w-4xl mx-auto" style="animation-delay: 0.9s;">
+        <div class="text-center">
+          <div class="text-3xl md:text-4xl font-black text-white mb-2">10+</div>
+          <div class="text-sm text-white/80 font-medium">Années d'expertise</div>
+        </div>
+        <div class="text-center">
+          <div class="text-3xl md:text-4xl font-black text-white mb-2">5000+</div>
+          <div class="text-sm text-white/80 font-medium">Clients satisfaits</div>
+        </div>
+        <div class="text-center">
+          <div class="text-3xl md:text-4xl font-black text-white mb-2">50+</div>
+          <div class="text-sm text-white/80 font-medium">Zones couvertes</div>
+        </div>
+        <div class="text-center">
+          <div class="text-3xl md:text-4xl font-black text-white mb-2">24/7</div>
+          <div class="text-sm text-white/80 font-medium">Service disponible</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Scroll indicator -->
+    <div class="absolute bottom-8 left-1/2 transform -translate-x-1/2 text-white animate-bounce">
+      <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
+      </svg>
+    </div>
+  </section>
+
+  <!-- SERVICES -->
+  <section id="services" class="py-24 bg-gradient-to-br from-gray-50 via-white to-primary/5 relative overflow-hidden">
+    <!-- Background pattern -->
+    <div class="absolute inset-0 opacity-5">
+      <div class="absolute top-0 left-0 w-full h-full" style="background-image: radial-gradient(circle at 25% 25%, #0f766e 2px, transparent 2px), radial-gradient(circle at 75% 75%, #1e3a8a 2px, transparent 2px); background-size: 100px 100px;"></div>
+    </div>
+    
+    <div class="max-w-7xl mx-auto px-6 text-center relative">
+      <div class="fade-in-up mb-16">
+        <h2 class="text-4xl md:text-5xl font-black mb-6">
+          Nos <span class="gradient-text">Services</span>
+        </h2>
+        <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+          Des solutions complètes et innovantes pour tous vos besoins environnementaux
+        </p>
+      </div>
+
+      <div class="grid md:grid-cols-3 gap-10">
+        <div class="glass-card p-10 rounded-3xl hover-lift group">
+          <div class="w-20 h-20 mx-auto mb-8 bg-gradient-to-br from-primary/20 to-primary/10 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+            <svg class="w-10 h-10 text-primary" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+            </svg>
+          </div>
+          <h3 class="text-2xl font-bold mb-4 group-hover:text-primary transition-colors">Collecte des déchets</h3>
+          <p class="text-gray-600 leading-relaxed mb-6">Ramassage régulier et ponctuel des ordures ménagères, commerciales et industrielles avec une flotte moderne et écologique.</p>
+          <ul class="text-left text-sm text-gray-600 space-y-2">
+            <li class="flex items-center"><span class="w-2 h-2 bg-primary rounded-full mr-3"></span>Service 7j/7</li>
+            <li class="flex items-center"><span class="w-2 h-2 bg-primary rounded-full mr-3"></span>Suivi GPS en temps réel</li>
+            <li class="flex items-center"><span class="w-2 h-2 bg-primary rounded-full mr-3"></span>Équipements adaptés</li>
+          </ul>
+        </div>
+
+        <div class="glass-card p-10 rounded-3xl hover-lift group">
+          <div class="w-20 h-20 mx-auto mb-8 bg-gradient-to-br from-secondary/20 to-secondary/10 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+            <svg class="w-10 h-10 text-secondary" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+            </svg>
+          </div>
+          <h3 class="text-2xl font-bold mb-4 group-hover:text-secondary transition-colors">Traitement et recyclage</h3>
+          <p class="text-gray-600 leading-relaxed mb-6">Valorisation et transformation écologique des déchets selon les normes internationales les plus strictes.</p>
+          <ul class="text-left text-sm text-gray-600 space-y-2">
+            <li class="flex items-center"><span class="w-2 h-2 bg-secondary rounded-full mr-3"></span>Tri sélectif avancé</li>
+            <li class="flex items-center"><span class="w-2 h-2 bg-secondary rounded-full mr-3"></span>Compostage industriel</li>
+            <li class="flex items-center"><span class="w-2 h-2 bg-secondary rounded-full mr-3"></span>Recyclage matériaux</li>
+          </ul>
+        </div>
+
+        <div class="glass-card p-10 rounded-3xl hover-lift group">
+          <div class="w-20 h-20 mx-auto mb-8 bg-gradient-to-br from-green-500/20 to-green-400/10 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+            <svg class="w-10 h-10 text-green-600" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path>
+            </svg>
+          </div>
+          <h3 class="text-2xl font-bold mb-4 group-hover:text-green-600 transition-colors">Sensibilisation & environnement</h3>
+          <p class="text-gray-600 leading-relaxed mb-6">Actions de sensibilisation et programmes communautaires pour un environnement durable et responsable.</p>
+          <ul class="text-left text-sm text-gray-600 space-y-2">
+            <li class="flex items-center"><span class="w-2 h-2 bg-green-500 rounded-full mr-3"></span>Formation écologique</li>
+            <li class="flex items-center"><span class="w-2 h-2 bg-green-500 rounded-full mr-3"></span>Programmes scolaires</li>
+            <li class="flex items-center"><span class="w-2 h-2 bg-green-500 rounded-full mr-3"></span>Campagnes publiques</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- CTA Section -->
+      <div class="fade-in-up mt-16 bg-gradient-to-r from-primary to-secondary rounded-3xl p-8 text-white">
+        <h3 class="text-2xl font-bold mb-4">Besoin d'une solution sur mesure ?</h3>
+        <p class="mb-6 text-white/90">Notre équipe d'experts vous accompagne dans la mise en place de solutions adaptées à vos besoins spécifiques.</p>
+        <a href="#contact" class="bg-white text-primary px-8 py-3 rounded-xl font-bold hover:shadow-xl hover:scale-105 transition-all duration-300 inline-block">
+          Demander un devis gratuit
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- À PROPOS -->
+  <section id="apropos" class="py-24 bg-gradient-to-br from-white via-primary/5 to-secondary/5 relative overflow-hidden">
+    <!-- Background elements -->
+    <div class="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-primary/10 to-transparent rounded-full blur-3xl"></div>
+    <div class="absolute bottom-0 left-0 w-96 h-96 bg-gradient-to-tr from-secondary/10 to-transparent rounded-full blur-3xl"></div>
+    
+    <div class="max-w-7xl mx-auto px-6 grid md:grid-cols-2 gap-16 items-center relative">
+      <div class="fade-in-left">
+        <div class="relative">
+          <img src="https://images.unsplash.com/photo-1568602471122-7832951cc4c5?auto=format&fit=crop&w=800&q=80" 
+               alt="Équipe ETE" 
+               class="rounded-3xl shadow-2xl hover:shadow-3xl transition-shadow duration-500">
+          <!-- Badge flottant -->
+          <div class="absolute -top-6 -right-6 bg-gradient-to-r from-primary to-secondary text-white px-6 py-3 rounded-2xl shadow-xl">
+            <div class="text-xl font-bold">10+</div>
+            <div class="text-sm">Années</div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="fade-in-right">
+        <div class="mb-8">
+          <h2 class="text-4xl md:text-5xl font-black mb-6">
+            Qui <span class="gradient-text">sommes-nous</span> ?
+          </h2>
+          <div class="w-20 h-1 bg-gradient-to-r from-primary to-secondary rounded-full mb-8"></div>
+        </div>
+        
+        <div class="space-y-6 text-lg leading-relaxed">
+          <p class="text-gray-700">
+            Depuis plus de <strong class="text-primary">10 ans</strong>, ETE accompagne les collectivités, 
+            entreprises et particuliers dans la gestion responsable des déchets au Burkina Faso.
+          </p>
+          <p class="text-gray-700">
+            Notre mission : <strong class="text-secondary">préserver l'environnement</strong> tout en améliorant 
+            la qualité de vie des citoyens à travers des solutions innovantes et durables.
+          </p>
+        </div>
+
+        <!-- Points forts avec icônes -->
+        <div class="mt-10 space-y-4">
+          <div class="flex items-center space-x-4 p-4 glass-card rounded-2xl hover:bg-white/70 transition-all">
+            <div class="w-12 h-12 bg-gradient-to-r from-primary to-secondary rounded-xl flex items-center justify-center">
+              <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+            </div>
+            <span class="text-gray-700 font-semibold">Expertise locale et technique de pointe</span>
+          </div>
+          
+          <div class="flex items-center space-x-4 p-4 glass-card rounded-2xl hover:bg-white/70 transition-all">
+            <div class="w-12 h-12 bg-gradient-to-r from-secondary to-primary rounded-xl flex items-center justify-center">
+              <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+              </svg>
+            </div>
+            <span class="text-gray-700 font-semibold">Équipe formée et professionnelle certifiée</span>
+          </div>
+          
+          <div class="flex items-center space-x-4 p-4 glass-card rounded-2xl hover:bg-white/70 transition-all">
+            <div class="w-12 h-12 bg-gradient-to-r from-green-500 to-primary rounded-xl flex items-center justify-center">
+              <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+              </svg>
+            </div>
+            <span class="text-gray-700 font-semibold">Couverture complète de la région du Centre</span>
+          </div>
+        </div>
+
+        <!-- Bouton CTA -->
+        <div class="mt-10">
+          <a href="#contact" class="inline-flex items-center bg-gradient-to-r from-primary to-secondary text-white px-8 py-4 rounded-2xl font-bold hover:shadow-xl hover:scale-105 transition-all duration-300">
+            <span class="mr-2">En savoir plus</span>
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
+            </svg>
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ZONES -->
+  <section id="zones" class="py-24 bg-gradient-to-br from-gray-50 via-primary/5 to-white relative overflow-hidden">
+    <!-- Background pattern -->
+    <div class="absolute inset-0 opacity-5">
+      <div class="absolute top-0 left-0 w-full h-full" style="background-image: radial-gradient(circle at 50% 50%, #0f766e 1px, transparent 1px); background-size: 50px 50px;"></div>
+    </div>
+
+    <div class="max-w-7xl mx-auto px-6 text-center relative">
+      <div class="fade-in-up mb-16">
+        <h2 class="text-4xl md:text-5xl font-black mb-6">
+          Nos zones <span class="gradient-text">d'intervention</span>
+        </h2>
+        <p class="text-xl text-gray-600 mb-8 max-w-3xl mx-auto leading-relaxed">
+          ETE dessert Ouagadougou et ses communes périphériques avec une couverture complète et des services de qualité.
+        </p>
+      </div>
+
+      <!-- Carte interactive -->
+      <div class="fade-in-up mb-16">
+        <div class="relative max-w-4xl mx-auto">
+          <img src="https://images.unsplash.com/photo-1545113041-3b6f281b30e5?auto=format&fit=crop&w=1200&q=80" 
+               alt="Carte du Burkina Faso" 
+               class="w-full rounded-3xl shadow-2xl hover:shadow-3xl transition-shadow duration-500">
+          
+          <!-- Points d'intervention avec animation -->
+          <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-4 h-4 bg-primary rounded-full pulse-glow">
+            <div class="absolute inset-0 bg-primary rounded-full animate-ping"></div>
+            <div class="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-white px-3 py-1 rounded-lg text-sm font-bold text-primary shadow-lg">
+              Ouagadougou
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Zones de couverture -->
+      <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
+        <div class="glass-card p-8 rounded-3xl hover-lift text-center">
+          <div class="w-16 h-16 mx-auto mb-6 bg-gradient-to-br from-primary/20 to-primary/10 rounded-2xl flex items-center justify-center">
+            <svg class="w-8 h-8 text-primary" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M12 2L2 7v10c0 5.55 3.84 9.74 9 11 5.16-1.26 9-5.45 9-11V7l-10-5z"></path>
+            </svg>
+          </div>
+          <h3 class="text-xl font-bold mb-3 text-gray-900">Centre-ville</h3>
+          <p class="text-gray-600 text-sm">Arrondissements 1 à 12 de Ouagadougou</p>
+        </div>
+
+        <div class="glass-card p-8 rounded-3xl hover-lift text-center">
+          <div class="w-16 h-16 mx-auto mb-6 bg-gradient-to-br from-secondary/20 to-secondary/10 rounded-2xl flex items-center justify-center">
+            <svg class="w-8 h-8 text-secondary" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+            </svg>
+          </div>
+          <h3 class="text-xl font-bold mb-3 text-gray-900">Zone industrielle</h3>
+          <p class="text-gray-600 text-sm">Kossodo et zones d'activités</p>
+        </div>
+
+        <div class="glass-card p-8 rounded-3xl hover-lift text-center">
+          <div class="w-16 h-16 mx-auto mb-6 bg-gradient-to-br from-green-500/20 to-green-400/10 rounded-2xl flex items-center justify-center">
+            <svg class="w-8 h-8 text-green-600" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"></path>
+            </svg>
+          </div>
+          <h3 class="text-xl font-bold mb-3 text-gray-900">Communes périphériques</h3>
+          <p class="text-gray-600 text-sm">Saaba, Koubri, Pabré et environs</p>
+        </div>
+
+        <div class="glass-card p-8 rounded-3xl hover-lift text-center">
+          <div class="w-16 h-16 mx-auto mb-6 bg-gradient-to-br from-orange-500/20 to-orange-400/10 rounded-2xl flex items-center justify-center">
+            <svg class="w-8 h-8 text-orange-600" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+            </svg>
+          </div>
+          <h3 class="text-xl font-bold mb-3 text-gray-900">National</h3>
+          <p class="text-gray-600 text-sm">Tout le Burkina Faso sur demande</p>
+        </div>
+      </div>
+
+      <!-- Stats de couverture -->
+      <div class="fade-in-up bg-gradient-to-r from-primary to-secondary rounded-3xl p-8 text-white">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+          <div>
+            <div class="text-3xl font-black mb-2">50+</div>
+            <div class="text-sm text-white/90">Secteurs couverts</div>
+          </div>
+          <div>
+            <div class="text-3xl font-black mb-2">100%</div>
+            <div class="text-sm text-white/90">Centre-ville</div>
+          </div>
+          <div>
+            <div class="text-3xl font-black mb-2">24/7</div>
+            <div class="text-sm text-white/90">Disponibilité</div>
+          </div>
+          <div>
+            <div class="text-3xl font-black mb-2">5000+</div>
+            <div class="text-sm text-white/90">Points desservis</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTACT -->
+  <section id="contact" class="py-24 bg-gradient-to-br from-white via-secondary/5 to-primary/5 relative overflow-hidden">
+    <!-- Background elements -->
+    <div class="absolute top-0 left-0 w-96 h-96 bg-gradient-to-br from-primary/10 to-transparent rounded-full blur-3xl"></div>
+    <div class="absolute bottom-0 right-0 w-64 h-64 bg-gradient-to-tl from-secondary/10 to-transparent rounded-full blur-3xl"></div>
+
+    <div class="max-w-7xl mx-auto px-6 relative">
+      <!-- En-tête -->
+      <div class="text-center mb-16 fade-in-up">
+        <h2 class="text-4xl md:text-5xl font-black mb-6">
+          <span class="gradient-text">Contactez-nous</span>
+        </h2>
+        <p class="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
+          Besoin d'informations ou d'un devis personnalisé ? Notre équipe d'experts est à votre disposition.
+        </p>
+      </div>
+
+      <div class="grid lg:grid-cols-2 gap-16">
+        <!-- Informations de contact -->
+        <div class="fade-in-left">
+          <div class="mb-12">
+            <h3 class="text-2xl font-bold mb-8 text-gray-900">Nos coordonnées</h3>
+            
+            <div class="space-y-6">
+              <div class="flex items-center space-x-4 p-6 glass-card rounded-2xl hover:bg-white/70 transition-all">
+                <div class="w-14 h-14 bg-gradient-to-r from-primary to-secondary rounded-xl flex items-center justify-center">
+                  <svg class="w-7 h-7 text-white" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                  </svg>
+                </div>
+                <div>
+                  <div class="font-bold text-gray-900">Adresse</div>
+                  <div class="text-gray-600">Secteur 30, Ouagadougou</div>
+                </div>
+              </div>
+
+              <div class="flex items-center space-x-4 p-6 glass-card rounded-2xl hover:bg-white/70 transition-all">
+                <div class="w-14 h-14 bg-gradient-to-r from-secondary to-primary rounded-xl flex items-center justify-center">
+                  <svg class="w-7 h-7 text-white" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path>
+                  </svg>
+                </div>
+                <div>
+                  <div class="font-bold text-gray-900">Téléphone</div>
+                  <div class="text-gray-600">+226 25 36 82 47</div>
+                </div>
+              </div>
+
+              <div class="flex items-center space-x-4 p-6 glass-card rounded-2xl hover:bg-white/70 transition-all">
+                <div class="w-14 h-14 bg-gradient-to-r from-green-500 to-primary rounded-xl flex items-center justify-center">
+                  <svg class="w-7 h-7 text-white" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                  </svg>
+                </div>
+                <div>
+                  <div class="font-bold text-gray-900">Email</div>
+                  <div class="text-gray-600">contact@ete-burkina.bf</div>
+                </div>
+              </div>
+
+              <div class="flex items-center space-x-4 p-6 glass-card rounded-2xl hover:bg-white/70 transition-all">
+                <div class="w-14 h-14 bg-gradient-to-r from-orange-500 to-secondary rounded-xl flex items-center justify-center">
+                  <svg class="w-7 h-7 text-white" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                  </svg>
+                </div>
+                <div>
+                  <div class="font-bold text-gray-900">Horaires</div>
+                  <div class="text-gray-600">Lundi - Vendredi : 7h00 - 18h00</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Response rapide -->
+          <div class="bg-gradient-to-r from-primary to-secondary rounded-3xl p-8 text-white">
+            <h4 class="text-xl font-bold mb-4">Réponse garantie sous 24h</h4>
+            <p class="text-white/90 mb-4">Notre équipe s'engage à vous répondre rapidement.</p>
+            <div class="flex items-center space-x-2 text-white/80 text-sm">
+              <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+              <span>Devis gratuit et sans engagement</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Formulaire de contact -->
+        <div class="fade-in-right">
+          <form class="glass-card p-10 rounded-3xl shadow-2xl">
+            <h3 class="text-2xl font-bold mb-8 text-gray-900">Envoyez-nous un message</h3>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-2">Nom complet *</label>
+                <input type="text" required placeholder="Votre nom complet" 
+                       class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all hover:border-gray-300">
+              </div>
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-2">Email *</label>
+                <input type="email" required placeholder="votre@email.com" 
+                       class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all hover:border-gray-300">
+              </div>
+            </div>
+
+            <div class="mb-6">
+              <label class="block text-sm font-semibold text-gray-700 mb-2">Téléphone</label>
+              <input type="tel" placeholder="+226 XX XX XX XX" 
+                     class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all hover:border-gray-300">
+            </div>
+
+            <div class="mb-6">
+              <label class="block text-sm font-semibold text-gray-700 mb-2">Type de service</label>
+              <select class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all hover:border-gray-300">
+                <option value="">Sélectionnez un service</option>
+                <option value="residentiel">Collecte résidentielle</option>
+                <option value="commercial">Collecte commerciale</option>
+                <option value="special">Déchets spéciaux</option>
+                <option value="autre">Autre demande</option>
+              </select>
+            </div>
+
+            <div class="mb-8">
+              <label class="block text-sm font-semibold text-gray-700 mb-2">Message *</label>
+              <textarea rows="5" required placeholder="Décrivez votre demande en détail..." 
+                        class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all hover:border-gray-300 resize-none"></textarea>
+            </div>
+
+            <button type="submit" 
+                    class="w-full bg-gradient-to-r from-primary to-secondary text-white px-8 py-4 rounded-xl font-bold text-lg hover:shadow-2xl hover:scale-105 transition-all duration-300 flex items-center justify-center space-x-2">
+              <span>Envoyer le message</span>
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
+              </svg>
+            </button>
+
+            <p class="text-sm text-gray-500 mt-4 text-center">
+              * Champs obligatoires. Vos données sont protégées.
+            </p>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="bg-secondary text-white py-10">
+    <div class="max-w-7xl mx-auto px-6 text-center">
+      <p class="text-sm text-gray-200">© 2025 ETE - Entreprise de Traitement Environnemental | Tous droits réservés</p>
+      <div class="flex justify-center space-x-6 mt-4 text-gray-300 text-sm">
+        <a href="#" class="hover:text-white">Mentions légales</a>
+        <a href="#" class="hover:text-white">Confidentialité</a>
+        <a href="/admin/" class="hover:text-white">Administration</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // Toggle mobile menu
+    const btn = document.getElementById('menu-btn');
+    const menu = document.getElementById('mobile-menu');
+    btn.addEventListener('click', () => menu.classList.toggle('hidden'));
+
+    // Animations on scroll
+    const observerOptions = {
+      threshold: 0.1,
+      rootMargin: '0px 0px -50px 0px'
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.style.opacity = '1';
+          entry.target.style.transform = 'translateY(0) translateX(0)';
+        }
+      });
+    }, observerOptions);
+
+    // Observer tous les éléments avec animation
+    document.addEventListener('DOMContentLoaded', () => {
+      const animatedElements = document.querySelectorAll('.fade-in-up, .fade-in-left, .fade-in-right');
+      animatedElements.forEach(el => observer.observe(el));
+
+      // Animation progressive des éléments
+      animatedElements.forEach((el, index) => {
+        el.style.animationDelay = `${index * 0.1}s`;
+      });
+
+      // Parallax effect pour le hero
+      window.addEventListener('scroll', () => {
+        const scrolled = window.pageYOffset;
+        const hero = document.getElementById('accueil');
+        if (hero) {
+          hero.style.transform = `translateY(${scrolled * 0.5}px)`;
+        }
+      });
+
+      // Header background on scroll
+      const header = document.querySelector('header');
+      window.addEventListener('scroll', () => {
+        if (window.scrollY > 100) {
+          header.classList.add('bg-white/95');
+          header.classList.remove('bg-white/90');
+        } else {
+          header.classList.add('bg-white/90');
+          header.classList.remove('bg-white/95');
+        }
+      });
+
+      // Smooth scroll pour les liens d'ancrage
+      document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+          e.preventDefault();
+          const target = document.querySelector(this.getAttribute('href'));
+          if (target) {
+            target.scrollIntoView({
+              behavior: 'smooth',
+              block: 'start'
+            });
+          }
+        });
+      });
+    });
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,37 @@
+# Backend Django pour plateforme ETE
+# Gestion des ramassages d'ordures
+
+# Django et extensions principales
+Django==5.2.7
+djangorestframework==3.15.2
+django-cors-headers==4.4.0
+django-filter==24.3
+whitenoise==6.8.1
+
+# Authentification et sécurité
+djangorestframework-simplejwt==5.3.2
+djoser==2.2.3
+
+# Base de données
+mysqlclient==2.2.4
+psycopg2-binary==2.9.9
+
+# Traitement d'images et QR codes
+Pillow==10.4.0
+qrcode==8.0
+
+# Variables d'environnement
+python-decouple==3.8
+
+# Tâches asynchrones
+celery==5.3.4
+redis==5.0.8
+
+# Serveur de production
+gunicorn==21.2.0
+
+# Utilitaires développement
+django-extensions==3.2.3
+
+# API de paiement (futur)
+# requests==2.31.0  # Pour intégration MyPayBF
