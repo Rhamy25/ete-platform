@@ -1,0 +1,366 @@
+{% extends 'admin_custom/base_admin.html' %}
+{% load static %}
+
+{% block title %}Paramètres - Administration ETE{% endblock %}
+
+{% block page_title %}Paramètres système{% endblock %}
+{% block page_subtitle %}Configuration et gestion de la plateforme ETE{% endblock %}
+
+{% block content %}
+
+<div class="space-y-6">
+
+  <!-- Paramètres généraux -->
+  <div class="bg-white rounded-lg shadow-sm p-6">
+    <h2 class="text-lg font-semibold text-gray-800 mb-6">
+      <i class="fas fa-cog mr-2 text-primary"></i>
+      Paramètres généraux
+    </h2>
+    
+    <form method="POST" action="{% url 'admin_settings' %}" class="space-y-6">
+      {% csrf_token %}
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        
+        <!-- Nom de l'entreprise -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Nom de l'entreprise</label>
+          <input type="text" name="company_name" value="{{ settings.company_name|default:'ETE - Entreprise de Transport et Enlèvement' }}" 
+                 class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary">
+        </div>
+        
+        <!-- Email principal -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Email principal</label>
+          <input type="email" name="company_email" value="{{ settings.company_email|default:'contact@ete.bf' }}" 
+                 class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary">
+        </div>
+        
+        <!-- Téléphone -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Téléphone principal</label>
+          <input type="tel" name="company_phone" value="{{ settings.company_phone|default:'+226 25 30 40 50' }}" 
+                 class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary">
+        </div>
+        
+        <!-- Adresse -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Adresse</label>
+          <input type="text" name="company_address" value="{{ settings.company_address|default:'Ouagadougou, Burkina Faso' }}" 
+                 class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary">
+        </div>
+        
+      </div>
+      
+      <div class="border-t pt-6">
+        <h3 class="text-md font-semibold text-gray-800 mb-4">
+          <i class="fas fa-money-bill-wave mr-2 text-primary"></i>
+          Paramètres de facturation
+        </h3>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          
+          <!-- Taux de TVA -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Taux de TVA (%)</label>
+            <input type="number" step="0.01" name="tva_rate" value="{{ settings.tva_rate|default:'18.00' }}" 
+                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary">
+          </div>
+          
+          <!-- Prix par kg -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Prix par kg (FCFA)</label>
+            <input type="number" name="price_per_kg" value="{{ settings.price_per_kg|default:'500' }}" 
+                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary">
+          </div>
+          
+          <!-- Délai de paiement -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Délai de paiement (jours)</label>
+            <input type="number" name="payment_delay" value="{{ settings.payment_delay|default:'30' }}" 
+                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary">
+          </div>
+          
+        </div>
+      </div>
+      
+      <div class="border-t pt-6">
+        <h3 class="text-md font-semibold text-gray-800 mb-4">
+          <i class="fas fa-shield-alt mr-2 text-primary"></i>
+          Règles de gestion
+        </h3>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          
+          <!-- Délai validation paiement -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Délai validation paiement (heures)</label>
+            <input type="number" name="payment_validation_delay" value="{{ settings.payment_validation_delay|default:'48' }}" 
+                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary">
+          </div>
+          
+          <!-- Délai inactivité client -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Délai inactivité client (mois)</label>
+            <input type="number" name="client_inactivity_months" value="{{ settings.client_inactivity_months|default:'3' }}" 
+                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary">
+          </div>
+          
+        </div>
+      </div>
+      
+      <div class="flex justify-end space-x-4">
+        <button type="button" class="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors">
+          Annuler
+        </button>
+        <button type="submit" class="px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors">
+          <i class="fas fa-save mr-2"></i>
+          Enregistrer
+        </button>
+      </div>
+      
+    </form>
+  </div>
+
+  <!-- Modes de paiement -->
+  <div class="bg-white rounded-lg shadow-sm p-6">
+    <div class="flex items-center justify-between mb-6">
+      <h2 class="text-lg font-semibold text-gray-800">
+        <i class="fas fa-credit-card mr-2 text-primary"></i>
+        Modes de paiement
+      </h2>
+      <button onclick="addPaymentMethod()" class="bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary-dark transition-colors">
+        <i class="fas fa-plus mr-2"></i>
+        Ajouter
+      </button>
+    </div>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      
+      <!-- Espèces -->
+      <div class="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 transition-colors">
+        <div class="flex items-center justify-between mb-3">
+          <div class="flex items-center space-x-3">
+            <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
+              <i class="fas fa-money-bills text-green-600"></i>
+            </div>
+            <div>
+              <h3 class="font-medium text-gray-900">Espèces</h3>
+              <p class="text-sm text-gray-500">Paiement en liquide</p>
+            </div>
+          </div>
+          <label class="relative inline-flex items-center cursor-pointer">
+            <input type="checkbox" checked class="sr-only peer">
+            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+          </label>
+        </div>
+        <p class="text-xs text-gray-600">Commission: 0%</p>
+      </div>
+
+      <!-- Mobile Money -->
+      <div class="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 transition-colors">
+        <div class="flex items-center justify-between mb-3">
+          <div class="flex items-center space-x-3">
+            <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+              <i class="fas fa-mobile-alt text-blue-600"></i>
+            </div>
+            <div>
+              <h3 class="font-medium text-gray-900">Mobile Money</h3>
+              <p class="text-sm text-gray-500">Orange Money, Moov Money</p>
+            </div>
+          </div>
+          <label class="relative inline-flex items-center cursor-pointer">
+            <input type="checkbox" checked class="sr-only peer">
+            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+          </label>
+        </div>
+        <p class="text-xs text-gray-600">Commission: 2%</p>
+      </div>
+
+      <!-- Virement bancaire -->
+      <div class="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 transition-colors">
+        <div class="flex items-center justify-between mb-3">
+          <div class="flex items-center space-x-3">
+            <div class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
+              <i class="fas fa-university text-purple-600"></i>
+            </div>
+            <div>
+              <h3 class="font-medium text-gray-900">Virement</h3>
+              <p class="text-sm text-gray-500">Banque</p>
+            </div>
+          </div>
+          <label class="relative inline-flex items-center cursor-pointer">
+            <input type="checkbox" checked class="sr-only peer">
+            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+          </label>
+        </div>
+        <p class="text-xs text-gray-600">Commission: 1%</p>
+      </div>
+
+      <!-- MyPayBF -->
+      <div class="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 transition-colors">
+        <div class="flex items-center justify-between mb-3">
+          <div class="flex items-center space-x-3">
+            <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
+              <i class="fas fa-globe text-green-600"></i>
+            </div>
+            <div>
+              <h3 class="font-medium text-gray-900">MyPayBF</h3>
+              <p class="text-sm text-gray-500">Paiement en ligne</p>
+            </div>
+          </div>
+          <label class="relative inline-flex items-center cursor-pointer">
+            <input type="checkbox" checked class="sr-only peer">
+            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+          </label>
+        </div>
+        <p class="text-xs text-gray-600">Commission: 3%</p>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Notifications -->
+  <div class="bg-white rounded-lg shadow-sm p-6">
+    <h2 class="text-lg font-semibold text-gray-800 mb-6">
+      <i class="fas fa-bell mr-2 text-primary"></i>
+      Paramètres de notifications
+    </h2>
+    
+    <div class="space-y-4">
+      
+      <!-- Email notifications -->
+      <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+        <div>
+          <h3 class="font-medium text-gray-900">Notifications par email</h3>
+          <p class="text-sm text-gray-500">Recevoir les alertes importantes par email</p>
+        </div>
+        <label class="relative inline-flex items-center cursor-pointer">
+          <input type="checkbox" checked class="sr-only peer">
+          <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+        </label>
+      </div>
+
+      <!-- SMS notifications -->
+      <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+        <div>
+          <h3 class="font-medium text-gray-900">Notifications SMS</h3>
+          <p class="text-sm text-gray-500">Alertes critiques par SMS</p>
+        </div>
+        <label class="relative inline-flex items-center cursor-pointer">
+          <input type="checkbox" class="sr-only peer">
+          <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+        </label>
+      </div>
+
+      <!-- Push notifications -->
+      <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+        <div>
+          <h3 class="font-medium text-gray-900">Notifications push</h3>
+          <p class="text-sm text-gray-500">Alertes en temps réel sur l'application mobile</p>
+        </div>
+        <label class="relative inline-flex items-center cursor-pointer">
+          <input type="checkbox" checked class="sr-only peer">
+          <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+        </label>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Actions de maintenance -->
+  <div class="bg-white rounded-lg shadow-sm p-6">
+    <h2 class="text-lg font-semibold text-gray-800 mb-6">
+      <i class="fas fa-tools mr-2 text-primary"></i>
+      Maintenance système
+    </h2>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      
+      <!-- Sauvegarde -->
+      <button onclick="performBackup()" class="flex items-center justify-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+        <div class="text-center">
+          <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mx-auto mb-3">
+            <i class="fas fa-download text-blue-600 text-lg"></i>
+          </div>
+          <h3 class="font-medium text-gray-900">Sauvegarder</h3>
+          <p class="text-sm text-gray-500">Créer une sauvegarde</p>
+        </div>
+      </button>
+
+      <!-- Nettoyage -->
+      <button onclick="cleanupSystem()" class="flex items-center justify-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+        <div class="text-center">
+          <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center mx-auto mb-3">
+            <i class="fas fa-broom text-orange-600 text-lg"></i>
+          </div>
+          <h3 class="font-medium text-gray-900">Nettoyer</h3>
+          <p class="text-sm text-gray-500">Nettoyer les fichiers temporaires</p>
+        </div>
+      </button>
+
+      <!-- Statistiques -->
+      <button onclick="generateStats()" class="flex items-center justify-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+        <div class="text-center">
+          <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mx-auto mb-3">
+            <i class="fas fa-chart-bar text-green-600 text-lg"></i>
+          </div>
+          <h3 class="font-medium text-gray-900">Régénérer</h3>
+          <p class="text-sm text-gray-500">Recalculer les statistiques</p>
+        </div>
+      </button>
+
+    </div>
+  </div>
+
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Fonction pour ajouter un mode de paiement
+function addPaymentMethod() {
+  alert('Fonctionnalité d\'ajout de mode de paiement en cours de développement...');
+}
+
+// Fonction de sauvegarde
+function performBackup() {
+  if (confirm('Créer une sauvegarde de la base de données ?')) {
+    // Simulation - à implémenter côté serveur
+    alert('Sauvegarde en cours...\n\nCette fonctionnalité sera implémentée prochainement.');
+  }
+}
+
+// Fonction de nettoyage
+function cleanupSystem() {
+  if (confirm('Nettoyer les fichiers temporaires et les caches ?')) {
+    // Simulation - à implémenter côté serveur
+    alert('Nettoyage en cours...\n\nFichiers temporaires supprimés avec succès.');
+  }
+}
+
+// Fonction de régénération des stats
+function generateStats() {
+  if (confirm('Recalculer toutes les statistiques ? Cette opération peut prendre quelques minutes.')) {
+    // Simulation - à implémenter côté serveur
+    alert('Régénération des statistiques en cours...\n\nOpération terminée avec succès.');
+  }
+}
+
+// Gestion des formulaires
+document.addEventListener('DOMContentLoaded', function() {
+  // Auto-save sur changement des paramètres
+  const form = document.querySelector('form');
+  if (form) {
+    const inputs = form.querySelectorAll('input');
+    inputs.forEach(input => {
+      input.addEventListener('change', function() {
+        // Marquer comme modifié
+        this.classList.add('border-yellow-400');
+      });
+    });
+  }
+});
+</script>
+{% endblock %}

@@ -16,15 +16,16 @@ class Agent(models.Model):
     )
     
     POSTE_CHOICES = (
-        ('chauffeur', 'Chauffeur'),
-        ('collecteur', 'Collecteur'),
-        ('chef_equipe', 'Chef d\'équipe'),
+        ('collecteur_argent', 'Collecteur d\'argent'),
+        ('ramasseur_ordures', 'Ramasseur d\'ordures'),
         ('superviseur', 'Superviseur'),
+        ('agent_prospection', 'Agent de prospection'),
+        ('chauffeur', 'Chauffeur'),
     )
     
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='agent_profile')
     matricule = models.CharField(max_length=20, unique=True)
-    poste = models.CharField(max_length=20, choices=POSTE_CHOICES)
+    poste = models.CharField(max_length=30, choices=POSTE_CHOICES)
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='actif')
     
     # Informations professionnelles
@@ -71,6 +72,14 @@ class Agent(models.Model):
     @property
     def is_available(self):
         return self.status == 'actif'
+    
+    @property
+    def vehicule_assigne(self):
+        """Retourne le premier véhicule assigné via les équipes de l'agent"""
+        for equipe in self.equipes.all():
+            if equipe.vehicule_assigne:
+                return equipe.vehicule_assigne
+        return None
 
 
 class Vehicule(models.Model):

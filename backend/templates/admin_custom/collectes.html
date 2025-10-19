@@ -1,0 +1,547 @@
+{% extends 'admin_custom/base_admin.html' %}
+
+{% block title %}Collectes - Administration ETE{% endblock %}
+{% block page_title %}Gestion des Collectes{% endblock %}
+{% block page_subtitle %}Planification et suivi des tournées de collecte{% endblock %}
+
+{% block content %}
+<div class="fade-in">
+  
+  <!-- Statistiques principales -->
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
+    
+    <!-- Total tournées -->
+    <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-sm font-medium text-gray-600">Total Tournées</p>
+          <p class="text-2xl font-bold text-gray-900">{{ stats.total_tournees }}</p>
+        </div>
+        <div class="w-12 h-12 bg-blue-50 rounded-lg flex items-center justify-center">
+          <i class="fas fa-route text-blue-600 text-lg"></i>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Planifiées -->
+    <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-sm font-medium text-gray-600">Planifiées</p>
+          <p class="text-2xl font-bold text-blue-600">{{ stats.planifiees }}</p>
+        </div>
+        <div class="w-12 h-12 bg-blue-50 rounded-lg flex items-center justify-center">
+          <i class="fas fa-calendar-check text-blue-600 text-lg"></i>
+        </div>
+      </div>
+    </div>
+    
+    <!-- En cours -->
+    <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-sm font-medium text-gray-600">En Cours</p>
+          <p class="text-2xl font-bold text-orange-600">{{ stats.en_cours }}</p>
+        </div>
+        <div class="w-12 h-12 bg-orange-50 rounded-lg flex items-center justify-center">
+          <i class="fas fa-truck text-orange-600 text-lg"></i>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Terminées -->
+    <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-sm font-medium text-gray-600">Terminées</p>
+          <p class="text-2xl font-bold text-green-600">{{ stats.terminees }}</p>
+        </div>
+        <div class="w-12 h-12 bg-green-50 rounded-lg flex items-center justify-center">
+          <i class="fas fa-check-circle text-green-600 text-lg"></i>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Taux de completion -->
+    <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-sm font-medium text-gray-600">Taux Completion</p>
+          <p class="text-2xl font-bold text-primary">{{ stats.taux_completion }}%</p>
+        </div>
+        <div class="w-12 h-12 bg-green-50 rounded-lg flex items-center justify-center">
+          <i class="fas fa-percentage text-primary text-lg"></i>
+        </div>
+      </div>
+    </div>
+    
+  </div>
+  
+  <!-- Filtres et recherche -->
+  <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100 mb-8">
+    <form method="GET" class="flex flex-col lg:flex-row gap-4">
+      
+      <!-- Recherche -->
+      <div class="flex-1">
+        <div class="relative">
+          <input type="text" 
+                 name="q" 
+                 value="{{ search_query }}"
+                 placeholder="Rechercher par nom de tournée, équipe ou zone..."
+                 class="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none">
+          <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+        </div>
+      </div>
+      
+      <!-- Filtre par statut -->
+      <div class="lg:w-48">
+        <select name="status" 
+                class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none">
+          <option value="">Tous les statuts</option>
+          {% for value, label in status_choices %}
+            <option value="{{ value }}" {% if status_filter == value %}selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      
+      <!-- Filtre par zone -->
+      <div class="lg:w-48">
+        <select name="zone" 
+                class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none">
+          <option value="">Toutes les zones</option>
+          {% for zone in zones %}
+            <option value="{{ zone.id }}" {% if zone_filter == zone.id|stringformat:"s" %}selected{% endif %}>
+              {{ zone.nom_zone }}
+            </option>
+          {% endfor %}
+        </select>
+      </div>
+      
+      <!-- Filtre par date -->
+      <div class="lg:w-48">
+        <input type="date" 
+               name="date"
+               value="{{ date_filter }}"
+               class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none">
+      </div>
+      
+      <!-- Boutons -->
+      <div class="flex gap-2">
+        <button type="submit" 
+                class="px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors flex items-center gap-2">
+          <i class="fas fa-filter"></i>
+          Filtrer
+        </button>
+        
+        <a href="{% url 'admin_collectes' %}" 
+           class="px-6 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors flex items-center gap-2">
+          <i class="fas fa-times"></i>
+          Réinitialiser
+        </a>
+      </div>
+      
+    </form>
+  </div>
+  
+  <!-- Actions rapides -->
+  <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100 mb-8">
+    <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+      
+      <h3 class="text-lg font-semibold text-gray-900 flex items-center gap-2">
+        <i class="fas fa-bolt text-primary"></i>
+        Actions Rapides
+      </h3>
+      
+      <div class="flex flex-wrap gap-3">
+        
+        <button class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors flex items-center gap-2 text-sm">
+          <i class="fas fa-plus"></i>
+          Nouvelle Tournée
+        </button>
+        
+        <button class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2 text-sm">
+          <i class="fas fa-calendar-alt"></i>
+          Planifier Semaine
+        </button>
+        
+        <button class="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors flex items-center gap-2 text-sm">
+          <i class="fas fa-map-marked-alt"></i>
+          Optimiser Itinéraires
+        </button>
+        
+        <button class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center gap-2 text-sm">
+          <i class="fas fa-download"></i>
+          Export Excel
+        </button>
+        
+      </div>
+      
+    </div>
+  </div>
+  
+  <!-- Liste des tournées -->
+  <div class="bg-white rounded-xl shadow-sm border border-gray-100">
+    
+    <!-- Header -->
+    <div class="px-6 py-4 border-b border-gray-200">
+      <h3 class="text-lg font-semibold text-gray-900 flex items-center gap-2">
+        <i class="fas fa-list text-primary"></i>
+        Tournées de Collecte
+        <span class="text-sm font-normal text-gray-500">({{ tournees.paginator.count }} total)</span>
+      </h3>
+    </div>
+    
+    {% if tournees %}
+      
+      <!-- Tableau desktop -->
+      <div class="hidden lg:block overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Tournée
+              </th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Date & Heure
+              </th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Équipe & Zone
+              </th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Progression
+              </th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Statut
+              </th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Actions
+              </th>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-200">
+            {% for tournee in tournees %}
+            <tr class="hover:bg-gray-50">
+              
+              <!-- Tournée -->
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div>
+                  <div class="text-sm font-medium text-gray-900">{{ tournee.nom_tournee }}</div>
+                  <div class="text-sm text-gray-500">
+                    <i class="fas fa-truck text-xs mr-1"></i>
+                    {% if tournee.vehicule_assigne %}{{ tournee.vehicule_assigne.numero_plaque }}{% else %}Non assigné{% endif %}
+                  </div>
+                </div>
+              </td>
+              
+              <!-- Date & Heure -->
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="text-sm text-gray-900">{{ tournee.date_tournee|date:"d/m/Y" }}</div>
+                <div class="text-sm text-gray-500">
+                  {{ tournee.heure_debut_prevue|time:"H:i" }} - {{ tournee.heure_fin_prevue|time:"H:i" }}
+                </div>
+              </td>
+              
+              <!-- Équipe & Zone -->
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="text-sm text-gray-900">
+                  <i class="fas fa-users text-xs mr-1"></i>
+                  {% if tournee.equipe_assignee %}{{ tournee.equipe_assignee.nom_equipe }}{% else %}Non assignée{% endif %}
+                </div>
+                <div class="text-sm text-gray-500">
+                  <i class="fas fa-map-marker-alt text-xs mr-1"></i>
+                  {{ tournee.zone_collecte.nom_zone }}
+                </div>
+              </td>
+              
+              <!-- Progression -->
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="text-sm text-gray-900">
+                  {{ tournee.nombre_clients_realises }}/{{ tournee.nombre_clients_prevus }} clients
+                </div>
+                <div class="w-full bg-gray-200 rounded-full h-2 mt-1">
+                  <div class="bg-primary h-2 rounded-full" style="width: {{ tournee.taux_completion }}%"></div>
+                </div>
+              </td>
+              
+              <!-- Statut -->
+              <td class="px-6 py-4 whitespace-nowrap">
+                {% if tournee.status == 'planifiee' %}
+                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                    <i class="fas fa-calendar-check mr-1"></i>
+                    Planifiée
+                  </span>
+                {% elif tournee.status == 'en_cours' %}
+                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
+                    <i class="fas fa-truck mr-1"></i>
+                    En cours
+                  </span>
+                {% elif tournee.status == 'terminee' %}
+                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                    <i class="fas fa-check-circle mr-1"></i>
+                    Terminée
+                  </span>
+                {% elif tournee.status == 'annulee' %}
+                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                    <i class="fas fa-times-circle mr-1"></i>
+                    Annulée
+                  </span>
+                {% else %}
+                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                    {{ tournee.get_status_display }}
+                  </span>
+                {% endif %}
+              </td>
+              
+              <!-- Actions -->
+              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                <div class="flex items-center space-x-2">
+                  
+                  <button class="text-primary hover:text-primary-dark transition-colors" title="Voir détails">
+                    <i class="fas fa-eye"></i>
+                  </button>
+                  
+                  <button class="text-blue-600 hover:text-blue-900 transition-colors" title="Modifier">
+                    <i class="fas fa-edit"></i>
+                  </button>
+                  
+                  {% if tournee.status == 'planifiee' %}
+                    <button class="text-green-600 hover:text-green-900 transition-colors" title="Démarrer">
+                      <i class="fas fa-play"></i>
+                    </button>
+                  {% endif %}
+                  
+                  <button class="text-red-600 hover:text-red-900 transition-colors" title="Supprimer">
+                    <i class="fas fa-trash"></i>
+                  </button>
+                  
+                </div>
+              </td>
+              
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      
+      <!-- Cards mobiles -->
+      <div class="lg:hidden divide-y divide-gray-200">
+        {% for tournee in tournees %}
+        <div class="p-6">
+          
+          <!-- Header card -->
+          <div class="flex items-start justify-between mb-4">
+            
+            <div class="flex-1">
+              <h4 class="text-lg font-semibold text-gray-900">{{ tournee.nom_tournee }}</h4>
+              <p class="text-sm text-gray-600 mt-1">
+                <i class="fas fa-calendar mr-1"></i>
+                {{ tournee.date_tournee|date:"d/m/Y" }} • {{ tournee.heure_debut_prevue|time:"H:i" }}-{{ tournee.heure_fin_prevue|time:"H:i" }}
+              </p>
+            </div>
+            
+            <div class="ml-4">
+              {% if tournee.status == 'planifiee' %}
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                  Planifiée
+                </span>
+              {% elif tournee.status == 'en_cours' %}
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
+                  En cours
+                </span>
+              {% elif tournee.status == 'terminee' %}
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                  Terminée
+                </span>
+              {% else %}
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                  {{ tournee.get_status_display }}
+                </span>
+              {% endif %}
+            </div>
+            
+          </div>
+          
+          <!-- Détails -->
+          <div class="grid grid-cols-2 gap-4 mb-4">
+            
+            <div>
+              <p class="text-xs font-medium text-gray-500 uppercase">Équipe</p>
+              <p class="text-sm text-gray-900 mt-1">
+                <i class="fas fa-users mr-1"></i>
+                {% if tournee.equipe_assignee %}{{ tournee.equipe_assignee.nom_equipe }}{% else %}Non assignée{% endif %}
+              </p>
+            </div>
+            
+            <div>
+              <p class="text-xs font-medium text-gray-500 uppercase">Zone</p>
+              <p class="text-sm text-gray-900 mt-1">
+                <i class="fas fa-map-marker-alt mr-1"></i>
+                {{ tournee.zone_collecte.nom_zone }}
+              </p>
+            </div>
+            
+            <div>
+              <p class="text-xs font-medium text-gray-500 uppercase">Véhicule</p>
+              <p class="text-sm text-gray-900 mt-1">
+                <i class="fas fa-truck mr-1"></i>
+                {% if tournee.vehicule_assigne %}{{ tournee.vehicule_assigne.numero_plaque }}{% else %}Non assigné{% endif %}
+              </p>
+            </div>
+            
+            <div>
+              <p class="text-xs font-medium text-gray-500 uppercase">Progression</p>
+              <p class="text-sm text-gray-900 mt-1">
+                {{ tournee.nombre_clients_realises }}/{{ tournee.nombre_clients_prevus }} clients
+              </p>
+            </div>
+            
+          </div>
+          
+          <!-- Barre de progression -->
+          <div class="mb-4">
+            <div class="flex justify-between text-sm text-gray-600 mb-1">
+              <span>Progression</span>
+              <span>{{ tournee.taux_completion }}%</span>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-2">
+              <div class="bg-primary h-2 rounded-full" style="width: {{ tournee.taux_completion }}%"></div>
+            </div>
+          </div>
+          
+          <!-- Actions -->
+          <div class="flex items-center justify-between pt-4 border-t border-gray-200">
+            
+            <div class="flex space-x-3">
+              <button class="text-primary hover:text-primary-dark transition-colors" title="Voir détails">
+                <i class="fas fa-eye text-lg"></i>
+              </button>
+              <button class="text-blue-600 hover:text-blue-900 transition-colors" title="Modifier">
+                <i class="fas fa-edit text-lg"></i>
+              </button>
+              {% if tournee.status == 'planifiee' %}
+                <button class="text-green-600 hover:text-green-900 transition-colors" title="Démarrer">
+                  <i class="fas fa-play text-lg"></i>
+                </button>
+              {% endif %}
+            </div>
+            
+            <button class="text-red-600 hover:text-red-900 transition-colors" title="Supprimer">
+              <i class="fas fa-trash text-lg"></i>
+            </button>
+            
+          </div>
+          
+        </div>
+        {% endfor %}
+      </div>
+      
+      <!-- Pagination -->
+      {% if tournees.has_other_pages %}
+        <div class="px-6 py-4 border-t border-gray-200">
+          <div class="flex items-center justify-between">
+            
+            <div class="text-sm text-gray-700">
+              Affichage de {{ tournees.start_index }} à {{ tournees.end_index }} sur {{ tournees.paginator.count }} tournées
+            </div>
+            
+            <div class="flex items-center space-x-2">
+              
+              {% if tournees.has_previous %}
+                <a href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ tournees.previous_page_number }}"
+                   class="px-3 py-2 text-sm bg-white border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors">
+                  <i class="fas fa-chevron-left"></i>
+                </a>
+              {% endif %}
+              
+              <span class="px-4 py-2 text-sm bg-primary text-white rounded-md">
+                {{ tournees.number }}
+              </span>
+              
+              {% if tournees.has_next %}
+                <a href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ tournees.next_page_number }}"
+                   class="px-3 py-2 text-sm bg-white border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors">
+                  <i class="fas fa-chevron-right"></i>
+                </a>
+              {% endif %}
+              
+            </div>
+            
+          </div>
+        </div>
+      {% endif %}
+      
+    {% else %}
+      
+      <!-- État vide -->
+      <div class="text-center py-16">
+        <div class="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+          <i class="fas fa-truck text-3xl text-gray-400"></i>
+        </div>
+        <h3 class="text-lg font-medium text-gray-900 mb-2">Aucune tournée trouvée</h3>
+        <p class="text-gray-500 mb-6">
+          {% if search_query or status_filter or zone_filter or date_filter %}
+            Aucune tournée ne correspond à vos critères de recherche.
+          {% else %}
+            Commencez par créer votre première tournée de collecte.
+          {% endif %}
+        </p>
+        
+        {% if search_query or status_filter or zone_filter or date_filter %}
+          <a href="{% url 'admin_collectes' %}" 
+             class="inline-flex items-center px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">
+            <i class="fas fa-times mr-2"></i>
+            Réinitialiser les filtres
+          </a>
+        {% else %}
+          <button class="inline-flex items-center px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors">
+            <i class="fas fa-plus mr-2"></i>
+            Créer une tournée
+          </button>
+        {% endif %}
+      </div>
+      
+    {% endif %}
+    
+  </div>
+  
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  // Mise à jour automatique du statut des tournées en cours
+  function updateTourneeStatus() {
+    fetch('{% url "admin_dashboard_stats" %}')
+      .then(response => response.json())
+      .then(data => {
+        // Mettre à jour les statistiques si nécessaire
+        const statsEnCours = document.querySelector('.stats-en-cours');
+        if (statsEnCours) {
+          statsEnCours.textContent = data.collectes_en_cours || '0';
+        }
+      })
+      .catch(error => console.log('Erreur mise à jour:', error));
+  }
+  
+  // Actualiser toutes les 30 secondes
+  setInterval(updateTourneeStatus, 30000);
+  
+  // Confirmation de suppression
+  document.querySelectorAll('[title="Supprimer"]').forEach(btn => {
+    btn.addEventListener('click', function(e) {
+      e.preventDefault();
+      if (confirm('Êtes-vous sûr de vouloir supprimer cette tournée ?')) {
+        // Logique de suppression
+        console.log('Suppression confirmée');
+      }
+    });
+  });
+  
+  // Auto-submit des filtres quand on change la sélection
+  document.querySelectorAll('select[name="status"], select[name="zone"], input[name="date"]').forEach(input => {
+    input.addEventListener('change', function() {
+      this.form.submit();
+    });
+  });
+</script>
+{% endblock %}

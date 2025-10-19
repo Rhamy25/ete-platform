@@ -1,0 +1,990 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Administration ETE{% endblock %}</title>
+  <meta name="description" content="Interface d'administration ETE - Gestion des collectes et clients">
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    
+    /* Couleurs personnalisées ETE */
+    :root {
+      --primary: #0f766e;
+      --primary-light: #14b8a6;
+      --primary-dark: #134e4a;
+      --secondary: #1e3a8a;
+      --accent: #f59e0b;
+      --success: #059669;
+      --danger: #dc2626;
+      --warning: #d97706;
+      --info: #2563eb;
+    }
+    
+    .bg-primary { background-color: var(--primary); }
+    .bg-primary-light { background-color: var(--primary-light); }
+    .text-primary { color: var(--primary); }
+    .border-primary { border-color: var(--primary); }
+    
+    /* Sidebar animations */
+    .sidebar {
+      transition: all 0.3s ease-in-out;
+      z-index: 50;
+      box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+    }
+    
+    /* S'assurer que le texte de la sidebar est visible */
+    .sidebar .sidebar-text {
+      color: white !important;
+      opacity: 1 !important;
+    }
+    
+    .sidebar a {
+      color: rgba(255, 255, 255, 0.9) !important;
+    }
+    
+    .sidebar a:hover {
+      color: white !important;
+      background-color: rgba(255, 255, 255, 0.1) !important;
+    }
+    
+    .sidebar-collapsed {
+      width: 4rem;
+    }
+    
+    .sidebar-expanded {
+      width: 16rem;
+    }
+    
+    /* Texte de la sidebar */
+    .sidebar-text {
+      color: white !important;
+      opacity: 1 !important;
+      transition: all 0.3s ease-in-out;
+    }
+    
+    .sidebar-title {
+      color: white !important;
+    }
+    
+    .sidebar-title h1 {
+      color: white !important;
+    }
+    
+    .sidebar-title p {
+      color: rgba(255, 255, 255, 0.7) !important;
+    }
+    
+    /* Menu items */
+    .menu-item {
+      color: white !important;
+      transition: all 0.3s ease;
+    }
+    
+    .menu-item:hover {
+      background-color: rgba(255, 255, 255, 0.1) !important;
+      color: white !important;
+    }
+    
+    .menu-item.active {
+      background-color: rgba(255, 255, 255, 0.2) !important;
+      color: white !important;
+    }
+    
+    .menu-item i {
+      color: white !important;
+    }
+    
+    .menu-item span {
+      color: white !important;
+    }
+    
+    /* Force l'affichage des éléments de navigation */
+    .sidebar nav a {
+      color: white !important;
+      text-decoration: none !important;
+    }
+    
+    .sidebar nav a:hover {
+      color: white !important;
+    }
+    
+    .sidebar nav i {
+      color: white !important;
+    }
+    
+    .sidebar .fas {
+      color: white !important;
+    }
+    
+    /* Assurer la visibilité du bouton collapse */
+    .sidebar button {
+      color: white !important;
+    }
+    
+    /* Menu item hover effects */
+    .menu-item {
+      @apply transition-all duration-200 ease-in-out;
+    }
+    
+    .menu-item:hover {
+      @apply bg-white/10 backdrop-blur-sm;
+    }
+    
+    .menu-item.active {
+      @apply bg-white/20 border-r-4 border-white;
+    }
+    
+    /* Card shadows */
+    .card-shadow {
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    }
+    
+    .card-shadow-lg {
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    }
+    
+    /* Responsive sidebar */
+    @media (max-width: 768px) {
+      .sidebar {
+        transform: translateX(-100%);
+      }
+      
+      .sidebar.mobile-open {
+        transform: translateX(0);
+      }
+    }
+    
+    /* Animations */
+    .fade-in {
+      animation: fadeIn 0.5s ease-in-out;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    /* Loading spinner */
+    .spinner {
+      border: 2px solid #f3f3f3;
+      border-top: 2px solid var(--primary);
+      border-radius: 50%;
+      width: 20px;
+      height: 20px;
+      animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+
+<body class="bg-gray-50 min-h-screen">
+  
+  <!-- Sidebar -->
+  <div id="sidebar" class="sidebar sidebar-expanded fixed left-0 top-0 h-full bg-gray-900 text-white z-50 flex flex-col" style="background: linear-gradient(180deg, #0f766e 0%, #134e4a 100%);">
+    
+    <!-- Logo et titre -->
+    <div class="p-6 border-b border-white/20">
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 rounded-xl bg-white/20 p-2 flex items-center justify-center">
+          <i class="fas fa-recycle text-white text-lg"></i>
+        </div>
+        <div id="sidebar-title" class="sidebar-title">
+          <h1 class="text-xl font-bold">ETE Admin</h1>
+          <p class="text-xs text-white/70">Gestion des collectes</p>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Navigation -->
+    <nav class="flex-1 px-4 py-6">
+      <ul class="space-y-2">
+        
+        <!-- Dashboard -->
+        <li>
+          <a href="{% url 'admin_dashboard' %}" class="menu-item flex items-center space-x-3 px-4 py-3 rounded-lg {% if request.resolver_match.url_name == 'admin_dashboard' %}active{% endif %}">
+            <i class="fas fa-chart-dashboard w-5"></i>
+            <span class="sidebar-text">Tableau de bord</span>
+          </a>
+        </li>
+        
+        <!-- Clients -->
+        <li>
+          <a href="{% url 'admin_clients' %}" class="menu-item flex items-center space-x-3 px-4 py-3 rounded-lg {% if 'clients' in request.resolver_match.url_name %}active{% endif %}">
+            <i class="fas fa-users w-5"></i>
+            <span class="sidebar-text">Clients</span>
+            <span class="ml-auto bg-white/20 text-xs px-2 py-1 rounded-full sidebar-text">{{ clients_count|default:0 }}</span>
+          </a>
+        </li>
+        
+        <!-- Agents -->
+        <li>
+          <a href="{% url 'admin_agents' %}" class="menu-item flex items-center space-x-3 px-4 py-3 rounded-lg {% if 'agents' in request.resolver_match.url_name %}active{% endif %}">
+            <i class="fas fa-user-tie w-5"></i>
+            <span class="sidebar-text">Agents</span>
+            <span class="ml-auto bg-white/20 text-xs px-2 py-1 rounded-full sidebar-text">{{ agents_count|default:0 }}</span>
+          </a>
+        </li>
+        
+        <!-- Collectes -->
+        <li>
+          <a href="{% url 'admin_collectes' %}" class="menu-item flex items-center space-x-3 px-4 py-3 rounded-lg {% if 'collectes' in request.resolver_match.url_name %}active{% endif %}">
+            <i class="fas fa-trash-can w-5"></i>
+            <span class="sidebar-text">Collectes</span>
+            <span class="ml-auto bg-orange-500 text-xs px-2 py-1 rounded-full sidebar-text">{{ collectes_pending|default:0 }}</span>
+          </a>
+        </li>
+        
+        <!-- Zones -->
+        <li>
+          <a href="{% url 'admin_zones' %}" class="menu-item flex items-center space-x-3 px-4 py-3 rounded-lg {% if 'zones' in request.resolver_match.url_name %}active{% endif %}">
+            <i class="fas fa-map-marked-alt w-5"></i>
+            <span class="sidebar-text">Zones de collecte</span>
+          </a>
+        </li>
+        
+        <!-- Paiements -->
+        <li>
+          <a href="{% url 'admin_paiements' %}" class="menu-item flex items-center space-x-3 px-4 py-3 rounded-lg {% if 'paiements' in request.resolver_match.url_name %}active{% endif %}">
+            <i class="fas fa-credit-card w-5"></i>
+            <span class="sidebar-text">Paiements</span>
+            <span class="ml-auto bg-blue-500 text-xs px-2 py-1 rounded-full sidebar-text">{{ paiements_pending|default:0 }}</span>
+          </a>
+        </li>
+        
+        <!-- Rapports -->
+        <li>
+          <a href="{% url 'admin_rapports' %}" class="menu-item flex items-center space-x-3 px-4 py-3 rounded-lg {% if 'rapports' in request.resolver_match.url_name %}active{% endif %}">
+            <i class="fas fa-chart-bar w-5"></i>
+            <span class="sidebar-text">Rapports</span>
+          </a>
+        </li>
+        
+        <hr class="border-white/20 my-4">
+        
+        <!-- Paramètres -->
+        <li>
+          <a href="{% url 'admin_settings' %}" class="menu-item flex items-center space-x-3 px-4 py-3 rounded-lg {% if 'settings' in request.resolver_match.url_name %}active{% endif %}">
+            <i class="fas fa-cog w-5"></i>
+            <span class="sidebar-text">Paramètres</span>
+          </a>
+        </li>
+        
+      </ul>
+    </nav>
+    
+    <!-- Bouton de collapse dans la sidebar -->
+    <div class="px-4 py-2">
+      <button id="sidebar-collapse-internal" class="w-full flex items-center justify-center py-2 px-4 rounded-lg bg-white/10 hover:bg-white/20 transition-colors text-white">
+        <i class="fas fa-bars"></i>
+        <span class="sidebar-text ml-2">Réduire</span>
+      </button>
+    </div>
+    
+    <!-- Profil utilisateur -->
+    <div class="p-4 border-t border-white/20">
+      <div class="flex items-center space-x-3">
+        <img src="https://ui-avatars.com/api/?name={{ user.get_full_name|default:user.username }}&background=ffffff&color=0f766e" 
+             alt="Avatar" class="w-10 h-10 rounded-full">
+        <div class="sidebar-text flex-1">
+          <p class="font-semibold text-sm">{{ user.get_full_name|default:user.username }}</p>
+          <p class="text-xs text-white/70">Administrateur</p>
+        </div>
+        <a href="{% url 'admin_logout' %}" class="text-white/70 hover:text-white transition-colors" title="Déconnexion">
+          <i class="fas fa-sign-out-alt"></i>
+        </a>
+      </div>
+    </div>
+    
+  </div>
+  
+  <!-- Bouton toggle sidebar (mobile) -->
+  <button id="sidebar-toggle" class="md:hidden fixed top-4 left-4 z-50 bg-primary text-white p-2 rounded-lg">
+    <i class="fas fa-bars"></i>
+  </button>
+  
+  <!-- Overlay pour mobile -->
+  <div id="sidebar-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden md:hidden"></div>
+  
+  <!-- Contenu principal -->
+  <div id="main-content" class="transition-all duration-300 ml-64 min-h-screen">
+    
+    <!-- Header -->
+    <header class="bg-white shadow-sm border-b border-gray-200 px-6 py-4 flex items-center justify-between">
+      
+      <!-- Toggle sidebar (desktop) -->
+      <div class="flex items-center space-x-4">
+        <button id="sidebar-collapse" class="hidden md:block text-gray-500 hover:text-primary transition-colors">
+          <i class="fas fa-bars text-lg"></i>
+        </button>
+        
+        <div>
+          <h1 class="text-2xl font-bold text-gray-800">{% block page_title %}Administration{% endblock %}</h1>
+          <p class="text-sm text-gray-500">{% block page_subtitle %}Gestion de votre plateforme ETE{% endblock %}</p>
+        </div>
+      </div>
+      
+      <!-- Actions header -->
+      <div class="flex items-center space-x-4">
+        
+        <!-- Notifications -->
+        <div class="relative" id="notifications-menu">
+          <button id="notifications-button" class="text-gray-500 hover:text-primary transition-colors relative">
+            <i class="fas fa-bell text-lg"></i>
+            <span id="notifications-badge" class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">3</span>
+          </button>
+          
+          <!-- Dropdown notifications -->
+          <div id="notifications-dropdown" class="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg border border-gray-200 z-50 hidden">
+            
+            <!-- En-tête -->
+            <div class="flex items-center justify-between px-4 py-3 border-b border-gray-100">
+              <h3 class="text-lg font-semibold text-gray-900">Notifications</h3>
+              <button id="mark-all-read" class="text-sm text-primary hover:text-primary-dark transition-colors">
+                Tout marquer comme lu
+              </button>
+            </div>
+            
+            <!-- Liste des notifications -->
+            <div class="max-h-80 overflow-y-auto">
+              
+              <!-- Notification 1 -->
+              <div class="notification-item border-l-4 border-red-500 bg-red-50 hover:bg-red-100 transition-colors cursor-pointer" data-id="1">
+                <div class="px-4 py-3">
+                  <div class="flex items-start space-x-3">
+                    <div class="w-8 h-8 bg-red-500 rounded-full flex items-center justify-center flex-shrink-0">
+                      <i class="fas fa-exclamation-triangle text-white text-sm"></i>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                      <p class="text-sm font-medium text-gray-900">
+                        Collecte en retard
+                      </p>
+                      <p class="text-sm text-gray-600">
+                        La tournée du secteur Ouaga Nord n'a pas été effectuée aujourd'hui
+                      </p>
+                      <p class="text-xs text-gray-500 mt-1">
+                        <i class="fas fa-clock mr-1"></i>
+                        Il y a 2 heures
+                      </p>
+                    </div>
+                    <div class="w-2 h-2 bg-red-500 rounded-full flex-shrink-0"></div>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Notification 2 -->
+              <div class="notification-item border-l-4 border-orange-500 bg-orange-50 hover:bg-orange-100 transition-colors cursor-pointer" data-id="2">
+                <div class="px-4 py-3">
+                  <div class="flex items-start space-x-3">
+                    <div class="w-8 h-8 bg-orange-500 rounded-full flex items-center justify-center flex-shrink-0">
+                      <i class="fas fa-credit-card text-white text-sm"></i>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                      <p class="text-sm font-medium text-gray-900">
+                        Paiement en attente
+                      </p>
+                      <p class="text-sm text-gray-600">
+                        Facture #FAC-2024-156 de Kouadio Marie (25,000 FCFA)
+                      </p>
+                      <p class="text-xs text-gray-500 mt-1">
+                        <i class="fas fa-clock mr-1"></i>
+                        Il y a 4 heures
+                      </p>
+                    </div>
+                    <div class="w-2 h-2 bg-orange-500 rounded-full flex-shrink-0"></div>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Notification 3 -->
+              <div class="notification-item border-l-4 border-blue-500 bg-blue-50 hover:bg-blue-100 transition-colors cursor-pointer" data-id="3">
+                <div class="px-4 py-3">
+                  <div class="flex items-start space-x-3">
+                    <div class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center flex-shrink-0">
+                      <i class="fas fa-user-plus text-white text-sm"></i>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                      <p class="text-sm font-medium text-gray-900">
+                        Nouveau client
+                      </p>
+                      <p class="text-sm text-gray-600">
+                        Inscriptions: Tapsoba Jean, Sawadogo Fatou
+                      </p>
+                      <p class="text-xs text-gray-500 mt-1">
+                        <i class="fas fa-clock mr-1"></i>
+                        Il y a 6 heures
+                      </p>
+                    </div>
+                    <div class="w-2 h-2 bg-blue-500 rounded-full flex-shrink-0"></div>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Notification lue (exemple) -->
+              <div class="notification-item read border-l-4 border-gray-300 bg-gray-50 hover:bg-gray-100 transition-colors cursor-pointer" data-id="4">
+                <div class="px-4 py-3">
+                  <div class="flex items-start space-x-3">
+                    <div class="w-8 h-8 bg-gray-400 rounded-full flex items-center justify-center flex-shrink-0">
+                      <i class="fas fa-check text-white text-sm"></i>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                      <p class="text-sm font-medium text-gray-700">
+                        Collecte terminée
+                      </p>
+                      <p class="text-sm text-gray-500">
+                        Tournée Secteur Centre - 45 collectes effectuées
+                      </p>
+                      <p class="text-xs text-gray-400 mt-1">
+                        <i class="fas fa-clock mr-1"></i>
+                        Hier à 16:30
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+            </div>
+            
+            <!-- Pied du dropdown -->
+            <div class="px-4 py-3 border-t border-gray-100 bg-gray-50">
+              <a href="{% url 'admin_notifications' %}" class="block text-center text-sm text-primary hover:text-primary-dark font-medium transition-colors">
+                Voir toutes les notifications
+              </a>
+            </div>
+            
+          </div>
+        </div>
+        
+        <!-- Recherche rapide -->
+        <div class="relative hidden md:block">
+          <input type="text" placeholder="Rechercher..." 
+                 class="pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none">
+          <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+        </div>
+        
+        <!-- Menu utilisateur -->
+        <div class="relative" id="user-menu">
+          <button id="user-menu-button" class="flex items-center space-x-2 text-gray-700 hover:text-primary transition-colors">
+            <img src="https://ui-avatars.com/api/?name={{ user.get_full_name|default:user.username }}&background=0f766e&color=ffffff" 
+                 alt="Avatar" class="w-8 h-8 rounded-full">
+            <span class="font-medium">{{ user.get_full_name|default:user.username }}</span>
+            <i class="fas fa-chevron-down text-xs transition-transform duration-200" id="user-menu-chevron"></i>
+          </button>
+          
+          <!-- Dropdown menu -->
+          <div id="user-menu-dropdown" class="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50 hidden">
+            
+            <!-- Profil utilisateur -->
+            <div class="px-4 py-3 border-b border-gray-100">
+              <div class="flex items-center space-x-3">
+                <img src="https://ui-avatars.com/api/?name={{ user.get_full_name|default:user.username }}&background=0f766e&color=ffffff" 
+                     alt="Avatar" class="w-10 h-10 rounded-full">
+                <div class="flex-1">
+                  <p class="text-sm font-semibold text-gray-900">{{ user.get_full_name|default:user.username }}</p>
+                  <p class="text-xs text-gray-500">{{ user.email }}</p>
+                  <p class="text-xs text-primary font-medium">
+                    {% if user.is_superuser %}
+                      Super Administrateur
+                    {% elif user.is_staff %}
+                      Administrateur
+                    {% else %}
+                      Utilisateur
+                    {% endif %}
+                  </p>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Options du menu -->
+            <div class="py-1">
+              
+              <!-- Mon profil -->
+              <a href="{% url 'admin_profile' %}" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-primary transition-colors">
+                <i class="fas fa-user-circle w-4 h-4 mr-3 text-gray-400"></i>
+                Mon profil
+              </a>
+              
+              <!-- Préférences -->
+              <a href="{% url 'admin_preferences' %}" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-primary transition-colors">
+                <i class="fas fa-sliders-h w-4 h-4 mr-3 text-gray-400"></i>
+                Préférences
+              </a>
+              
+              <!-- Notifications -->
+              <a href="{% url 'admin_notifications' %}" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-primary transition-colors">
+                <i class="fas fa-bell w-4 h-4 mr-3 text-gray-400"></i>
+                Notifications
+                <span class="ml-auto bg-red-500 text-white text-xs px-2 py-0.5 rounded-full">3</span>
+              </a>
+              
+              <!-- Activité -->
+              <a href="{% url 'admin_activity' %}" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-primary transition-colors">
+                <i class="fas fa-history w-4 h-4 mr-3 text-gray-400"></i>
+                Activité récente
+              </a>
+              
+            </div>
+            
+            <hr class="border-gray-100 my-1">
+            
+            <!-- Aide et support -->
+            <div class="py-1">
+              
+              <!-- Documentation -->
+              <a href="{% url 'admin_help' %}" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-primary transition-colors">
+                <i class="fas fa-question-circle w-4 h-4 mr-3 text-gray-400"></i>
+                Aide & Documentation
+              </a>
+              
+              <!-- Support -->
+              <a href="{% url 'admin_support' %}" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-primary transition-colors">
+                <i class="fas fa-headset w-4 h-4 mr-3 text-gray-400"></i>
+                Support technique
+              </a>
+              
+            </div>
+            
+            <hr class="border-gray-100 my-1">
+            
+            <!-- Actions système -->
+            <div class="py-1">
+              
+              <!-- Changer de langue -->
+              <button onclick="toggleLanguage()" class="w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-primary transition-colors">
+                <i class="fas fa-language w-4 h-4 mr-3 text-gray-400"></i>
+                <span>Français</span>
+                <i class="fas fa-chevron-right w-3 h-3 ml-auto text-gray-400"></i>
+              </button>
+              
+              <!-- Mode sombre -->
+              <button onclick="toggleDarkMode()" class="w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-primary transition-colors">
+                <i class="fas fa-moon w-4 h-4 mr-3 text-gray-400"></i>
+                Mode sombre
+                <div class="ml-auto">
+                  <div class="w-8 h-4 bg-gray-300 rounded-full relative">
+                    <div class="w-3 h-3 bg-white rounded-full absolute top-0.5 left-0.5 transition-transform duration-200" id="dark-mode-toggle"></div>
+                  </div>
+                </div>
+              </button>
+              
+            </div>
+            
+            <hr class="border-gray-100 my-1">
+            
+            <!-- Déconnexion -->
+            <div class="py-1">
+              <a href="{% url 'admin_logout' %}" class="flex items-center px-4 py-2 text-sm text-red-600 hover:bg-red-50 hover:text-red-700 transition-colors">
+                <i class="fas fa-sign-out-alt w-4 h-4 mr-3"></i>
+                Se déconnecter
+              </a>
+            </div>
+            
+          </div>
+        </div>
+        
+      </div>
+      
+    </header>
+    
+    <!-- Contenu de la page -->
+    <main class="p-6">
+      
+      <!-- Messages d'alerte -->
+      {% if messages %}
+        <div class="mb-6 space-y-4">
+          {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} p-4 rounded-lg border-l-4 {% if message.tags == 'success' %}bg-green-50 border-green-500 text-green-800{% elif message.tags == 'error' %}bg-red-50 border-red-500 text-red-800{% elif message.tags == 'warning' %}bg-yellow-50 border-yellow-500 text-yellow-800{% else %}bg-blue-50 border-blue-500 text-blue-800{% endif %}">
+              <div class="flex items-center">
+                <i class="fas {% if message.tags == 'success' %}fa-check-circle{% elif message.tags == 'error' %}fa-exclamation-triangle{% elif message.tags == 'warning' %}fa-exclamation-circle{% else %}fa-info-circle{% endif %} mr-3"></i>
+                {{ message }}
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+      
+      <!-- Contenu spécifique à la page -->
+      {% block content %}
+      {% endblock %}
+      
+    </main>
+    
+  </div>
+  
+  <script>
+    // Gestion de la sidebar
+    const sidebar = document.getElementById('sidebar');
+    const sidebarToggle = document.getElementById('sidebar-toggle');
+    const sidebarCollapse = document.getElementById('sidebar-collapse');
+    const sidebarCollapseInternal = document.getElementById('sidebar-collapse-internal');
+    const sidebarOverlay = document.getElementById('sidebar-overlay');
+    const mainContent = document.getElementById('main-content');
+    const sidebarTexts = document.querySelectorAll('.sidebar-text');
+    const sidebarTitle = document.getElementById('sidebar-title');
+    
+    let sidebarExpanded = true;
+    
+    // Fonction de toggle de la sidebar
+    function toggleSidebar() {
+      sidebarExpanded = !sidebarExpanded;
+      
+      if (sidebarExpanded) {
+        sidebar.classList.remove('sidebar-collapsed');
+        sidebar.classList.add('sidebar-expanded');
+        mainContent.classList.remove('ml-16');
+        mainContent.classList.add('ml-64');
+        sidebarTexts.forEach(text => text.classList.remove('hidden'));
+        sidebarTitle.classList.remove('hidden');
+      } else {
+        sidebar.classList.remove('sidebar-expanded');
+        sidebar.classList.add('sidebar-collapsed');
+        mainContent.classList.remove('ml-64');
+        mainContent.classList.add('ml-16');
+        sidebarTexts.forEach(text => text.classList.add('hidden'));
+        sidebarTitle.classList.add('hidden');
+      }
+    }
+    
+    // Toggle sidebar sur desktop (bouton header)
+    sidebarCollapse.addEventListener('click', toggleSidebar);
+    
+    // Toggle sidebar depuis la sidebar elle-même
+    sidebarCollapseInternal.addEventListener('click', toggleSidebar);
+    
+    // Toggle sidebar sur mobile
+    sidebarToggle.addEventListener('click', () => {
+      sidebar.classList.toggle('mobile-open');
+      sidebarOverlay.classList.toggle('hidden');
+    });
+    
+    // Fermer sidebar en cliquant sur l'overlay
+    sidebarOverlay.addEventListener('click', () => {
+      sidebar.classList.remove('mobile-open');
+      sidebarOverlay.classList.add('hidden');
+    });
+    
+    // Ajustement responsive
+    function handleResize() {
+      if (window.innerWidth >= 768) {
+        sidebar.classList.remove('mobile-open');
+        sidebarOverlay.classList.add('hidden');
+        // S'assurer que la sidebar est visible sur desktop
+        if (sidebarExpanded) {
+          mainContent.classList.remove('ml-16');
+          mainContent.classList.add('ml-64');
+        } else {
+          mainContent.classList.remove('ml-64');
+          mainContent.classList.add('ml-16');
+        }
+      } else {
+        mainContent.classList.remove('ml-16', 'ml-64');
+        mainContent.classList.add('ml-0');
+      }
+    }
+    
+    window.addEventListener('resize', handleResize);
+    handleResize();
+    
+    // Animation des éléments au chargement
+    document.addEventListener('DOMContentLoaded', () => {
+      const elements = document.querySelectorAll('.fade-in');
+      elements.forEach((el, index) => {
+        el.style.animationDelay = `${index * 0.1}s`;
+      });
+      
+      // S'assurer que les textes de la sidebar sont visibles au chargement
+      const allSidebarTexts = document.querySelectorAll('.sidebar-text, .sidebar-title, .menu-item');
+      allSidebarTexts.forEach(el => {
+        el.style.color = 'white';
+        el.style.opacity = '1';
+      });
+      
+      // S'assurer que les icônes sont visibles
+      const allSidebarIcons = document.querySelectorAll('.sidebar i, .menu-item i');
+      allSidebarIcons.forEach(el => {
+        el.style.color = 'white';
+      });
+    });
+    
+    // Gestion du menu utilisateur
+    const userMenuButton = document.getElementById('user-menu-button');
+    const userMenuDropdown = document.getElementById('user-menu-dropdown');
+    const userMenuChevron = document.getElementById('user-menu-chevron');
+    
+    let userMenuOpen = false;
+    
+    // Toggle du menu utilisateur
+    userMenuButton.addEventListener('click', (e) => {
+      e.stopPropagation();
+      userMenuOpen = !userMenuOpen;
+      
+      if (userMenuOpen) {
+        userMenuDropdown.classList.remove('hidden');
+        userMenuChevron.classList.add('rotate-180');
+      } else {
+        userMenuDropdown.classList.add('hidden');
+        userMenuChevron.classList.remove('rotate-180');
+      }
+    });
+    
+    // Fermer le menu en cliquant ailleurs
+    document.addEventListener('click', (e) => {
+      if (!document.getElementById('user-menu').contains(e.target)) {
+        userMenuDropdown.classList.add('hidden');
+        userMenuChevron.classList.remove('rotate-180');
+        userMenuOpen = false;
+      }
+    });
+    
+    // Empêcher la fermeture du menu en cliquant à l'intérieur
+    userMenuDropdown.addEventListener('click', (e) => {
+      e.stopPropagation();
+    });
+    
+    // Fonction pour changer de langue
+    function toggleLanguage() {
+      const languages = ['Français', 'English', 'العربية'];
+      const currentLang = document.querySelector('#user-menu button span').textContent;
+      const currentIndex = languages.indexOf(currentLang);
+      const nextIndex = (currentIndex + 1) % languages.length;
+      document.querySelector('#user-menu button span').textContent = languages[nextIndex];
+      
+      // Ici on peut ajouter la logique de changement de langue
+      console.log('Changement de langue vers:', languages[nextIndex]);
+    }
+    
+    // Fonction pour le mode sombre
+    function toggleDarkMode() {
+      const toggle = document.getElementById('dark-mode-toggle');
+      const isDark = toggle.classList.contains('translate-x-4');
+      
+      if (isDark) {
+        toggle.classList.remove('translate-x-4');
+        toggle.classList.add('translate-x-0.5');
+        document.body.classList.remove('dark');
+      } else {
+        toggle.classList.remove('translate-x-0.5');
+        toggle.classList.add('translate-x-4');
+        document.body.classList.add('dark');
+      }
+      
+      // Sauvegarder la préférence
+      localStorage.setItem('darkMode', !isDark);
+      console.log('Mode sombre:', !isDark ? 'activé' : 'désactivé');
+    }
+    
+    // Charger la préférence du mode sombre
+    document.addEventListener('DOMContentLoaded', () => {
+      const darkMode = localStorage.getItem('darkMode') === 'true';
+      if (darkMode) {
+        document.body.classList.add('dark');
+        document.getElementById('dark-mode-toggle').classList.add('translate-x-4');
+      }
+    });
+    
+    // Gestion des notifications
+    const notificationsButton = document.getElementById('notifications-button');
+    const notificationsDropdown = document.getElementById('notifications-dropdown');
+    const notificationsBadge = document.getElementById('notifications-badge');
+    const markAllReadButton = document.getElementById('mark-all-read');
+    
+    let notificationsOpen = false;
+    let unreadCount = 3; // Nombre initial de notifications non lues
+    
+    // Toggle du dropdown notifications
+    notificationsButton.addEventListener('click', (e) => {
+      e.stopPropagation();
+      notificationsOpen = !notificationsOpen;
+      
+      if (notificationsOpen) {
+        notificationsDropdown.classList.remove('hidden');
+      } else {
+        notificationsDropdown.classList.add('hidden');
+      }
+    });
+    
+    // Fermer les notifications en cliquant ailleurs
+    document.addEventListener('click', (e) => {
+      if (!document.getElementById('notifications-menu').contains(e.target)) {
+        notificationsDropdown.classList.add('hidden');
+        notificationsOpen = false;
+      }
+    });
+    
+    // Empêcher la fermeture en cliquant dans le dropdown
+    notificationsDropdown.addEventListener('click', (e) => {
+      e.stopPropagation();
+    });
+    
+    // Marquer une notification comme lue
+    document.querySelectorAll('.notification-item:not(.read)').forEach(item => {
+      item.addEventListener('click', (e) => {
+        if (!item.classList.contains('read')) {
+          item.classList.add('read');
+          
+          // Changer l'apparence
+          item.classList.remove('border-red-500', 'bg-red-50', 'border-orange-500', 'bg-orange-50', 'border-blue-500', 'bg-blue-50');
+          item.classList.add('border-gray-300', 'bg-gray-50');
+          
+          // Masquer le point de notification
+          const dot = item.querySelector('.w-2.h-2');
+          if (dot) {
+            dot.remove();
+          }
+          
+          // Changer l'icône
+          const icon = item.querySelector('.w-8.h-8');
+          if (icon) {
+            icon.className = 'w-8 h-8 bg-gray-400 rounded-full flex items-center justify-center flex-shrink-0';
+            icon.innerHTML = '<i class="fas fa-check text-white text-sm"></i>';
+          }
+          
+          // Diminuer le compteur
+          unreadCount--;
+          updateNotificationsBadge();
+        }
+      });
+    });
+    
+    // Marquer toutes les notifications comme lues
+    markAllReadButton.addEventListener('click', (e) => {
+      e.preventDefault();
+      
+      document.querySelectorAll('.notification-item:not(.read)').forEach(item => {
+        item.classList.add('read');
+        
+        // Changer l'apparence
+        item.classList.remove('border-red-500', 'bg-red-50', 'border-orange-500', 'bg-orange-50', 'border-blue-500', 'bg-blue-50');
+        item.classList.add('border-gray-300', 'bg-gray-50');
+        
+        // Masquer le point de notification
+        const dot = item.querySelector('.w-2.h-2');
+        if (dot) {
+          dot.remove();
+        }
+        
+        // Changer l'icône
+        const icon = item.querySelector('.w-8.h-8');
+        if (icon) {
+          icon.className = 'w-8 h-8 bg-gray-400 rounded-full flex items-center justify-center flex-shrink-0';
+          icon.innerHTML = '<i class="fas fa-check text-white text-sm"></i>';
+        }
+      });
+      
+      unreadCount = 0;
+      updateNotificationsBadge();
+    });
+    
+    // Mettre à jour le badge de notifications
+    function updateNotificationsBadge() {
+      if (unreadCount > 0) {
+        notificationsBadge.textContent = unreadCount;
+        notificationsBadge.classList.remove('hidden');
+      } else {
+        notificationsBadge.classList.add('hidden');
+      }
+    }
+    
+    // Animation d'entrée pour les nouvelles notifications
+    function addNewNotification(notification) {
+      const notificationsList = document.querySelector('#notifications-dropdown .max-h-80');
+      const newItem = document.createElement('div');
+      newItem.innerHTML = notification;
+      newItem.style.opacity = '0';
+      newItem.style.transform = 'translateY(-10px)';
+      
+      notificationsList.insertBefore(newItem, notificationsList.firstChild);
+      
+      // Animation d'apparition
+      setTimeout(() => {
+        newItem.style.transition = 'all 0.3s ease';
+        newItem.style.opacity = '1';
+        newItem.style.transform = 'translateY(0)';
+      }, 100);
+      
+      unreadCount++;
+      updateNotificationsBadge();
+      
+      // Animation du badge
+      notificationsBadge.classList.add('animate-pulse');
+      setTimeout(() => {
+        notificationsBadge.classList.remove('animate-pulse');
+      }, 2000);
+    }
+    
+    // Simuler une nouvelle notification (pour démonstration)
+    function simulateNewNotification() {
+      const notifications = [
+        {
+          type: 'success',
+          icon: 'fa-check-circle',
+          color: 'green',
+          title: 'Collecte terminée',
+          message: 'Tournée Secteur Ouest - 32 collectes effectuées',
+          time: 'À l\'instant'
+        },
+        {
+          type: 'warning',
+          icon: 'fa-exclamation-triangle',
+          color: 'orange',
+          title: 'Véhicule en maintenance',
+          message: 'Le camion BF-456-CD nécessite une révision',
+          time: 'À l\'instant'
+        }
+      ];
+      
+      const randomNotif = notifications[Math.floor(Math.random() * notifications.length)];
+      
+      const notificationHTML = `
+        <div class="notification-item border-l-4 border-${randomNotif.color}-500 bg-${randomNotif.color}-50 hover:bg-${randomNotif.color}-100 transition-colors cursor-pointer" data-id="${Date.now()}">
+          <div class="px-4 py-3">
+            <div class="flex items-start space-x-3">
+              <div class="w-8 h-8 bg-${randomNotif.color}-500 rounded-full flex items-center justify-center flex-shrink-0">
+                <i class="fas ${randomNotif.icon} text-white text-sm"></i>
+              </div>
+              <div class="flex-1 min-w-0">
+                <p class="text-sm font-medium text-gray-900">
+                  ${randomNotif.title}
+                </p>
+                <p class="text-sm text-gray-600">
+                  ${randomNotif.message}
+                </p>
+                <p class="text-xs text-gray-500 mt-1">
+                  <i class="fas fa-clock mr-1"></i>
+                  ${randomNotif.time}
+                </p>
+              </div>
+              <div class="w-2 h-2 bg-${randomNotif.color}-500 rounded-full flex-shrink-0"></div>
+            </div>
+          </div>
+        </div>
+      `;
+      
+      addNewNotification(notificationHTML);
+    }
+    
+    // Simulation d'une nouvelle notification toutes les 30 secondes (pour démonstration)
+    // Décommenter la ligne suivante pour activer la simulation
+    // setInterval(simulateNewNotification, 30000);
+  </script>
+  
+  {% block extra_js %}
+  {% endblock %}
+  
+</body>
+</html>

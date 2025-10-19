@@ -254,6 +254,25 @@
     </div>
   </header>
 
+  <!-- Messages Django -->
+  {% if messages %}
+    <div class="fixed top-20 left-1/2 transform -translate-x-1/2 z-50 space-y-2">
+      {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} px-6 py-4 rounded-lg shadow-lg max-w-md {% if message.tags == 'success' %}bg-green-100 border border-green-400 text-green-800{% elif message.tags == 'error' %}bg-red-100 border border-red-400 text-red-800{% elif message.tags == 'warning' %}bg-yellow-100 border border-yellow-400 text-yellow-800{% else %}bg-blue-100 border border-blue-400 text-blue-800{% endif %} fade-in message-alert">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center">
+              <i class="fas {% if message.tags == 'success' %}fa-check-circle{% elif message.tags == 'error' %}fa-exclamation-triangle{% elif message.tags == 'warning' %}fa-exclamation-circle{% else %}fa-info-circle{% endif %} mr-3"></i>
+              {{ message }}
+            </div>
+            <button class="ml-4 text-gray-500 hover:text-gray-700" onclick="this.parentElement.parentElement.remove()">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+
   <!-- HERO -->
   <section id="accueil" class="hero-bg text-white min-h-screen flex items-center justify-center text-center px-6 relative overflow-hidden">
     
@@ -1191,15 +1210,17 @@
         </div>
 
         <!-- Formulaire Admin -->
-        <form id="admin-form" class="space-y-4">
+        <form id="admin-form" method="post" action="{% url 'admin_login' %}" class="space-y-4">
+          {% csrf_token %}
+          <input type="hidden" name="user_type" value="admin">
           <div>
             <label class="block text-sm font-semibold text-gray-700 mb-2">Email administrateur</label>
-            <input type="email" placeholder="admin@ete-burkina.bf" 
+            <input type="email" name="username" required placeholder="admin@ete-burkina.bf" 
                    class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all">
           </div>
           <div>
             <label class="block text-sm font-semibold text-gray-700 mb-2">Mot de passe</label>
-            <input type="password" placeholder="••••••••" 
+            <input type="password" name="password" required placeholder="••••••••" 
                    class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all">
           </div>
           <button type="submit" class="w-full bg-gradient-to-r from-primary to-secondary text-white py-3 rounded-xl font-bold hover:shadow-lg transition-all">
@@ -1208,15 +1229,17 @@
         </form>
 
         <!-- Formulaire Agent -->
-        <form id="agent-form" class="space-y-4 hidden">
+        <form id="agent-form" method="post" action="{% url 'admin_login' %}" class="space-y-4 hidden">
+          {% csrf_token %}
+          <input type="hidden" name="user_type" value="agent">
           <div>
             <label class="block text-sm font-semibold text-gray-700 mb-2">Code agent</label>
-            <input type="text" placeholder="ETE001" 
+            <input type="text" name="username" required placeholder="ETE001" 
                    class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-secondary focus:border-secondary outline-none transition-all">
           </div>
           <div>
             <label class="block text-sm font-semibold text-gray-700 mb-2">Mot de passe</label>
-            <input type="password" placeholder="••••••••" 
+            <input type="password" name="password" required placeholder="••••••••" 
                    class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-secondary focus:border-secondary outline-none transition-all">
           </div>
           <button type="submit" class="w-full bg-gradient-to-r from-secondary to-primary text-white py-3 rounded-xl font-bold hover:shadow-lg transition-all">
@@ -1476,17 +1499,26 @@
         adminForm.classList.add('hidden');
       });
 
-      // Gestion des formulaires
-      adminForm.addEventListener('submit', (e) => {
-        e.preventDefault();
-        // Rediriger vers l'interface admin Django
-        window.location.href = '/admin/';
-      });
+      // Gestion des formulaires - Laisser la soumission normale pour l'authentification
+      // Les formulaires sont maintenant soumis normalement vers Django
 
-      agentForm.addEventListener('submit', (e) => {
-        e.preventDefault();
-        // TODO: Implémenter la logique de connexion agent
-        alert('Interface agent en cours de développement');
+      // Auto-fermeture des messages d'alerte
+      document.addEventListener('DOMContentLoaded', () => {
+        const alerts = document.querySelectorAll('.message-alert');
+        alerts.forEach(alert => {
+          // Fermeture automatique après 5 secondes
+          setTimeout(() => {
+            if (alert && alert.parentNode) {
+              alert.style.opacity = '0';
+              alert.style.transform = 'translateY(-20px)';
+              setTimeout(() => {
+                if (alert && alert.parentNode) {
+                  alert.remove();
+                }
+              }, 300);
+            }
+          }, 5000);
+        });
       });
 
       // Geolocation functionality

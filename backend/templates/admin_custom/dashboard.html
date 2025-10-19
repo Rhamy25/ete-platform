@@ -1,0 +1,700 @@
+{% extends 'admin_custom/base_admin.html' %}
+{% load static %}
+
+{% block title %}Dashboard - Administration ETE{% endblock %}
+{% block page_title %}Tableau de bord{% endblock %}
+{% block page_subtitle %}Vue d'ensemble de vos opérations ETE{% endblock %}
+
+{% block content %}
+
+<!-- Statistiques principales -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+  
+  <!-- Total Clients -->
+  <div class="bg-white rounded-xl card-shadow-lg p-6 fade-in">
+    <div class="flex items-center justify-between">
+      <div>
+        <p class="text-sm font-medium text-gray-500 mb-1">Total Clients</p>
+        <p class="text-3xl font-bold text-gray-900">{{ stats.total_clients|default:0 }}</p>
+        <p class="text-sm text-green-600 flex items-center mt-1">
+          <i class="fas fa-arrow-up text-xs mr-1"></i>
+          +{{ stats.new_clients_month|default:0 }} ce mois
+        </p>
+      </div>
+      <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+        <i class="fas fa-users text-blue-600 text-xl"></i>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Collectes du jour -->
+  <div class="bg-white rounded-xl card-shadow-lg p-6 fade-in">
+    <div class="flex items-center justify-between">
+      <div>
+        <p class="text-sm font-medium text-gray-500 mb-1">Collectes Aujourd'hui</p>
+        <p class="text-3xl font-bold text-gray-900">{{ stats.collectes_today|default:0 }}</p>
+        <p class="text-sm text-green-600 flex items-center mt-1">
+          <i class="fas fa-check-circle text-xs mr-1"></i>
+          {{ stats.collectes_completed|default:0 }} terminées
+        </p>
+      </div>
+      <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+        <i class="fas fa-trash-can text-green-600 text-xl"></i>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Agents Actifs -->
+  <div class="bg-white rounded-xl card-shadow-lg p-6 fade-in">
+    <div class="flex items-center justify-between">
+      <div>
+        <p class="text-sm font-medium text-gray-500 mb-1">Agents Actifs</p>
+        <p class="text-3xl font-bold text-gray-900">{{ stats.agents_active|default:0 }}</p>
+        <p class="text-sm text-blue-600 flex items-center mt-1">
+          <i class="fas fa-map-marker-alt text-xs mr-1"></i>
+          {{ stats.agents_on_route|default:0 }} en tournée
+        </p>
+      </div>
+      <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+        <i class="fas fa-user-hard-hat text-purple-600 text-xl"></i>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Revenus du mois -->
+  <div class="bg-white rounded-xl card-shadow-lg p-6 fade-in">
+    <div class="flex items-center justify-between">
+      <div>
+        <p class="text-sm font-medium text-gray-500 mb-1">Revenus ce mois</p>
+        <p class="text-3xl font-bold text-gray-900">{{ stats.revenue_month|default:0|floatformat:0 }} F</p>
+        <p class="text-sm text-green-600 flex items-center mt-1">
+          <i class="fas fa-chart-line text-xs mr-1"></i>
+          +{{ stats.revenue_growth|default:0|floatformat:1 }}%
+        </p>
+      </div>
+      <div class="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
+        <i class="fas fa-coins text-yellow-600 text-xl"></i>
+      </div>
+    </div>
+  </div>
+  
+</div>
+
+<!-- Actions rapides -->
+<div class="bg-white rounded-xl card-shadow-lg p-6 mb-8 fade-in">
+  <div class="flex items-center justify-between mb-6">
+    <h3 class="text-lg font-semibold text-gray-900">Actions rapides</h3>
+    <p class="text-sm text-gray-500">Raccourcis administrateur</p>
+  </div>
+  
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+    
+    <!-- Ajouter un admin -->
+    <button onclick="openAddAdminModal()" class="flex items-center space-x-3 p-4 bg-primary hover:bg-primary-dark text-white rounded-lg transition-colors group">
+      <div class="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center group-hover:bg-white/30 transition-colors">
+        <i class="fas fa-user-shield text-lg"></i>
+      </div>
+      <div class="text-left">
+        <p class="font-semibold">Ajouter Admin</p>
+        <p class="text-xs text-white/80">Nouveau administrateur</p>
+      </div>
+    </button>
+    
+    <!-- Ajouter un client -->
+    <a href="{% url 'admin_clients' %}?action=add" class="flex items-center space-x-3 p-4 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors group">
+      <div class="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center group-hover:bg-white/30 transition-colors">
+        <i class="fas fa-user-plus text-lg"></i>
+      </div>
+      <div class="text-left">
+        <p class="font-semibold">Ajouter Client</p>
+        <p class="text-xs text-white/80">Nouveau client</p>
+      </div>
+    </a>
+    
+    <!-- Programmer collecte -->
+    <a href="{% url 'admin_collectes' %}?action=schedule" class="flex items-center space-x-3 p-4 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors group">
+      <div class="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center group-hover:bg-white/30 transition-colors">
+        <i class="fas fa-calendar-plus text-lg"></i>
+      </div>
+      <div class="text-left">
+        <p class="font-semibold">Programmer</p>
+        <p class="text-xs text-white/80">Nouvelle tournée</p>
+      </div>
+    </a>
+    
+    <!-- Voir rapports -->
+    <a href="{% url 'admin_rapports' %}" class="flex items-center space-x-3 p-4 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors group">
+      <div class="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center group-hover:bg-white/30 transition-colors">
+        <i class="fas fa-chart-line text-lg"></i>
+      </div>
+      <div class="text-left">
+        <p class="font-semibold">Rapports</p>
+        <p class="text-xs text-white/80">Analytics</p>
+      </div>
+    </a>
+    
+  </div>
+</div>
+
+<!-- Graphiques et tableaux -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+  
+  <!-- Graphique des collectes -->
+  <div class="bg-white rounded-xl card-shadow-lg p-6 fade-in">
+    <div class="flex items-center justify-between mb-6">
+      <h3 class="text-lg font-semibold text-gray-900">Collectes par jour (7 derniers jours)</h3>
+      <button class="text-primary hover:text-primary-dark transition-colors">
+        <i class="fas fa-external-link-alt"></i>
+      </button>
+    </div>
+    
+    <div class="h-64 flex items-end justify-between space-x-2">
+      {% for day in chart_data.collectes_week %}
+        <div class="flex flex-col items-center space-y-2 flex-1">
+          <div class="w-full bg-primary rounded-t" style="height: {{ day.percentage }}%"></div>
+          <span class="text-xs text-gray-500">{{ day.day_short }}</span>
+          <span class="text-xs font-medium">{{ day.count }}</span>
+        </div>
+      {% empty %}
+        <div class="w-full h-32 flex items-center justify-center text-gray-400">
+          <div class="text-center">
+            <i class="fas fa-chart-bar text-3xl mb-2"></i>
+            <p>Aucune donnée disponible</p>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+  
+  <!-- Répartition par zones -->
+  <div class="bg-white rounded-xl card-shadow-lg p-6 fade-in">
+    <div class="flex items-center justify-between mb-6">
+      <h3 class="text-lg font-semibold text-gray-900">Répartition par zones</h3>
+      <a href="{% url 'admin_zones' %}" class="text-primary hover:text-primary-dark transition-colors">
+        Voir tout <i class="fas fa-arrow-right ml-1"></i>
+      </a>
+    </div>
+    
+    <div class="space-y-4">
+      {% for zone in top_zones %}
+        <div class="flex items-center justify-between">
+          <div class="flex items-center space-x-3">
+            <div class="w-3 h-3 rounded-full" style="background-color: {{ zone.color }}"></div>
+            <span class="font-medium">{{ zone.nom }}</span>
+          </div>
+          <div class="text-right">
+            <span class="font-semibold">{{ zone.clients_count }}</span>
+            <span class="text-gray-500 text-sm ml-1">clients</span>
+          </div>
+        </div>
+        <div class="w-full bg-gray-200 rounded-full h-2">
+          <div class="bg-primary h-2 rounded-full transition-all duration-500" style="width: {{ zone.percentage }}%"></div>
+        </div>
+      {% empty %}
+        <div class="text-center py-8 text-gray-400">
+          <i class="fas fa-map-marked-alt text-3xl mb-2"></i>
+          <p>Aucune zone configurée</p>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+  
+</div>
+
+<!-- Tableaux récents -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+  
+  <!-- Dernières collectes -->
+  <div class="bg-white rounded-xl card-shadow-lg fade-in">
+    <div class="p-6 border-b border-gray-200">
+      <div class="flex items-center justify-between">
+        <h3 class="text-lg font-semibold text-gray-900">Dernières collectes</h3>
+        <a href="{% url 'admin_collectes' %}" class="text-primary hover:text-primary-dark transition-colors text-sm font-medium">
+          Voir toutes
+        </a>
+      </div>
+    </div>
+    
+    <div class="p-6">
+      {% for collecte in recent_collectes %}
+        <div class="flex items-center justify-between py-3 {% if not forloop.last %}border-b border-gray-100{% endif %}">
+          <div class="flex items-center space-x-3">
+            <div class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center">
+              <i class="fas fa-user text-gray-600"></i>
+            </div>
+            <div>
+              <p class="font-medium text-gray-900">{{ collecte.client.nom }}</p>
+              <p class="text-sm text-gray-500">{{ collecte.zone.nom }}</p>
+            </div>
+          </div>
+          <div class="text-right">
+            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium 
+              {% if collecte.statut == 'completed' %}bg-green-100 text-green-800
+              {% elif collecte.statut == 'pending' %}bg-yellow-100 text-yellow-800
+              {% else %}bg-gray-100 text-gray-800{% endif %}">
+              {{ collecte.get_statut_display }}
+            </span>
+            <p class="text-xs text-gray-500 mt-1">{{ collecte.date_prevue|date:"d/m H:i" }}</p>
+          </div>
+        </div>
+      {% empty %}
+        <div class="text-center py-8 text-gray-400">
+          <i class="fas fa-trash text-3xl mb-2"></i>
+          <p>Aucune collecte récente</p>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+  
+  <!-- Alertes et notifications -->
+  <div class="bg-white rounded-xl card-shadow-lg fade-in">
+    <div class="p-6 border-b border-gray-200">
+      <div class="flex items-center justify-between">
+        <h3 class="text-lg font-semibold text-gray-900">Alertes du système</h3>
+        <button class="text-gray-400 hover:text-gray-600 transition-colors">
+          <i class="fas fa-cog"></i>
+        </button>
+      </div>
+    </div>
+    
+    <div class="p-6 space-y-4">
+      
+      <!-- Alerte agents inactifs -->
+      {% if alerts.agents_inactifs %}
+      <div class="flex items-start space-x-3 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+        <i class="fas fa-exclamation-triangle text-yellow-600 mt-1"></i>
+        <div class="flex-1">
+          <p class="font-medium text-yellow-800">{{ alerts.agents_inactifs }} agent(s) inactif(s)</p>
+          <p class="text-sm text-yellow-600">Depuis plus de 3 jours</p>
+        </div>
+        <button class="text-yellow-600 hover:text-yellow-800">
+          <i class="fas fa-arrow-right"></i>
+        </button>
+      </div>
+      {% endif %}
+      
+      <!-- Alerte paiements en retard -->
+      {% if alerts.paiements_retard %}
+      <div class="flex items-start space-x-3 p-4 bg-red-50 border border-red-200 rounded-lg">
+        <i class="fas fa-credit-card text-red-600 mt-1"></i>
+        <div class="flex-1">
+          <p class="font-medium text-red-800">{{ alerts.paiements_retard }} paiement(s) en retard</p>
+          <p class="text-sm text-red-600">Action requise</p>
+        </div>
+        <button class="text-red-600 hover:text-red-800">
+          <i class="fas fa-arrow-right"></i>
+        </button>
+      </div>
+      {% endif %}
+      
+      <!-- Alerte nouvelles demandes -->
+      {% if alerts.nouvelles_demandes %}
+      <div class="flex items-start space-x-3 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+        <i class="fas fa-bell text-blue-600 mt-1"></i>
+        <div class="flex-1">
+          <p class="font-medium text-blue-800">{{ alerts.nouvelles_demandes }} nouvelle(s) demande(s)</p>
+          <p class="text-sm text-blue-600">De prospection</p>
+        </div>
+        <button class="text-blue-600 hover:text-blue-800">
+          <i class="fas fa-arrow-right"></i>
+        </button>
+      </div>
+      {% endif %}
+      
+      {% if not alerts.agents_inactifs and not alerts.paiements_retard and not alerts.nouvelles_demandes %}
+      <div class="text-center py-8 text-gray-400">
+        <i class="fas fa-check-circle text-3xl mb-2 text-green-400"></i>
+        <p class="text-green-600">Tout fonctionne parfaitement !</p>
+      </div>
+      {% endif %}
+      
+    </div>
+  </div>
+  
+</div>
+
+<!-- Actions rapides -->
+<div class="mt-8 bg-white rounded-xl card-shadow-lg p-6 fade-in">
+  <h3 class="text-lg font-semibold text-gray-900 mb-6">Actions rapides</h3>
+  
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+    
+    <a href="{% url 'admin_clients' %}?action=add" class="flex flex-col items-center p-4 rounded-lg border-2 border-dashed border-gray-300 hover:border-primary hover:bg-primary/5 transition-all group">
+      <i class="fas fa-user-plus text-2xl text-gray-400 group-hover:text-primary mb-2"></i>
+      <span class="font-medium text-gray-700 group-hover:text-primary">Nouveau client</span>
+    </a>
+    
+    <a href="{% url 'admin_agents' %}?action=add" class="flex flex-col items-center p-4 rounded-lg border-2 border-dashed border-gray-300 hover:border-primary hover:bg-primary/5 transition-all group">
+      <i class="fas fa-hard-hat text-2xl text-gray-400 group-hover:text-primary mb-2"></i>
+      <span class="font-medium text-gray-700 group-hover:text-primary">Nouvel agent</span>
+    </a>
+    
+    <a href="{% url 'admin_collectes' %}?action=schedule" class="flex flex-col items-center p-4 rounded-lg border-2 border-dashed border-gray-300 hover:border-primary hover:bg-primary/5 transition-all group">
+      <i class="fas fa-calendar-plus text-2xl text-gray-400 group-hover:text-primary mb-2"></i>
+      <span class="font-medium text-gray-700 group-hover:text-primary">Planifier collecte</span>
+    </a>
+    
+    <a href="{% url 'admin_rapports' %}?type=daily" class="flex flex-col items-center p-4 rounded-lg border-2 border-dashed border-gray-300 hover:border-primary hover:bg-primary/5 transition-all group">
+      <i class="fas fa-file-pdf text-2xl text-gray-400 group-hover:text-primary mb-2"></i>
+      <span class="font-medium text-gray-700 group-hover:text-primary">Rapport quotidien</span>
+    </a>
+    
+  </div>
+</div>
+
+<!-- Modal Ajouter Admin -->
+<div id="addAdminModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center">
+  <div class="bg-white rounded-xl shadow-xl max-w-md w-full mx-4 max-h-[90vh] overflow-y-auto">
+    
+    <!-- En-tête du modal -->
+    <div class="flex items-center justify-between p-6 border-b border-gray-200">
+      <h3 class="text-lg font-semibold text-gray-900">Ajouter un administrateur</h3>
+      <button onclick="closeAddAdminModal()" class="text-gray-400 hover:text-gray-600 transition-colors">
+        <i class="fas fa-times text-xl"></i>
+      </button>
+    </div>
+    
+    <!-- Corps du modal -->
+    <form id="addAdminForm" class="p-6 space-y-4">
+      {% csrf_token %}
+      
+      <!-- Informations personnelles -->
+      <div class="space-y-4">
+        <h4 class="font-medium text-gray-900 border-b border-gray-200 pb-2">Informations personnelles</h4>
+        
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Prénom *</label>
+            <input type="text" name="first_name" required 
+                   class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-primary focus:border-primary"
+                   placeholder="Jean">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Nom *</label>
+            <input type="text" name="last_name" required 
+                   class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-primary focus:border-primary"
+                   placeholder="Ouédraogo">
+          </div>
+        </div>
+        
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Email *</label>
+          <input type="email" name="email" required 
+                 class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-primary focus:border-primary"
+                 placeholder="jean.ouedraogo@ete.bf">
+        </div>
+        
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Téléphone</label>
+          <input type="tel" name="phone" 
+                 class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-primary focus:border-primary"
+                 placeholder="+226 XX XX XX XX">
+        </div>
+      </div>
+      
+      <!-- Informations de connexion -->
+      <div class="space-y-4">
+        <h4 class="font-medium text-gray-900 border-b border-gray-200 pb-2">Informations de connexion</h4>
+        
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Nom d'utilisateur *</label>
+          <input type="text" name="username" required 
+                 class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-primary focus:border-primary"
+                 placeholder="jean.ouedraogo">
+        </div>
+        
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Mot de passe *</label>
+          <div class="relative">
+            <input type="password" name="password" required id="admin-password"
+                   class="w-full border border-gray-300 rounded-lg px-3 py-2 pr-10 focus:ring-2 focus:ring-primary focus:border-primary"
+                   placeholder="Mot de passe sécurisé">
+            <button type="button" onclick="togglePasswordVisibility('admin-password')" 
+                    class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600">
+              <i class="fas fa-eye"></i>
+            </button>
+          </div>
+          <p class="text-xs text-gray-500 mt-1">Minimum 8 caractères avec lettres et chiffres</p>
+        </div>
+        
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Confirmer le mot de passe *</label>
+          <input type="password" name="password_confirm" required 
+                 class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-primary focus:border-primary"
+                 placeholder="Confirmer le mot de passe">
+        </div>
+      </div>
+      
+      <!-- Permissions -->
+      <div class="space-y-4">
+        <h4 class="font-medium text-gray-900 border-b border-gray-200 pb-2">Permissions</h4>
+        
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Rôle administrateur</label>
+          <div class="space-y-2">
+            <label class="flex items-center">
+              <input type="radio" name="admin_level" value="admin" checked 
+                     class="text-primary focus:ring-primary border-gray-300">
+              <span class="ml-2 text-sm">
+                <strong>Administrateur</strong> - Accès complet sauf gestion des admins
+              </span>
+            </label>
+            <label class="flex items-center">
+              <input type="radio" name="admin_level" value="superadmin" 
+                     class="text-primary focus:ring-primary border-gray-300">
+              <span class="ml-2 text-sm">
+                <strong>Super Administrateur</strong> - Accès complet incluant gestion des admins
+              </span>
+            </label>
+          </div>
+        </div>
+        
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Modules accessibles</label>
+          <div class="grid grid-cols-2 gap-2">
+            <label class="flex items-center">
+              <input type="checkbox" name="permissions" value="clients" checked 
+                     class="text-primary focus:ring-primary border-gray-300 rounded">
+              <span class="ml-2 text-sm">Clients</span>
+            </label>
+            <label class="flex items-center">
+              <input type="checkbox" name="permissions" value="agents" checked 
+                     class="text-primary focus:ring-primary border-gray-300 rounded">
+              <span class="ml-2 text-sm">Agents</span>
+            </label>
+            <label class="flex items-center">
+              <input type="checkbox" name="permissions" value="collectes" checked 
+                     class="text-primary focus:ring-primary border-gray-300 rounded">
+              <span class="ml-2 text-sm">Collectes</span>
+            </label>
+            <label class="flex items-center">
+              <input type="checkbox" name="permissions" value="paiements" checked 
+                     class="text-primary focus:ring-primary border-gray-300 rounded">
+              <span class="ml-2 text-sm">Paiements</span>
+            </label>
+            <label class="flex items-center">
+              <input type="checkbox" name="permissions" value="rapports" checked 
+                     class="text-primary focus:ring-primary border-gray-300 rounded">
+              <span class="ml-2 text-sm">Rapports</span>
+            </label>
+            <label class="flex items-center">
+              <input type="checkbox" name="permissions" value="settings" 
+                     class="text-primary focus:ring-primary border-gray-300 rounded">
+              <span class="ml-2 text-sm">Paramètres</span>
+            </label>
+          </div>
+        </div>
+      </div>
+      
+    </form>
+    
+    <!-- Actions du modal -->
+    <div class="flex items-center justify-end space-x-3 p-6 border-t border-gray-200 bg-gray-50">
+      <button type="button" onclick="closeAddAdminModal()" 
+              class="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+        Annuler
+      </button>
+      <button type="submit" form="addAdminForm" 
+              class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors">
+        <i class="fas fa-user-shield mr-2"></i>
+        Créer l'administrateur
+      </button>
+    </div>
+    
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  // Gestion du modal Ajouter Admin
+  function openAddAdminModal() {
+    document.getElementById('addAdminModal').classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+  }
+  
+  function closeAddAdminModal() {
+    document.getElementById('addAdminModal').classList.add('hidden');
+    document.body.style.overflow = 'auto';
+    // Réinitialiser le formulaire
+    document.getElementById('addAdminForm').reset();
+  }
+  
+  // Fermer le modal en cliquant en dehors
+  document.getElementById('addAdminModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+      closeAddAdminModal();
+    }
+  });
+  
+  // Gestion de la visibilité du mot de passe
+  function togglePasswordVisibility(inputId) {
+    const input = document.getElementById(inputId);
+    const icon = input.nextElementSibling.querySelector('i');
+    
+    if (input.type === 'password') {
+      input.type = 'text';
+      icon.classList.remove('fa-eye');
+      icon.classList.add('fa-eye-slash');
+    } else {
+      input.type = 'password';
+      icon.classList.remove('fa-eye-slash');
+      icon.classList.add('fa-eye');
+    }
+  }
+  
+  // Soumission du formulaire d'ajout d'admin
+  document.getElementById('addAdminForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(this);
+    const password = formData.get('password');
+    const passwordConfirm = formData.get('password_confirm');
+    
+    // Validation du mot de passe
+    if (password !== passwordConfirm) {
+      alert('Les mots de passe ne correspondent pas.');
+      return;
+    }
+    
+    if (password.length < 8) {
+      alert('Le mot de passe doit contenir au moins 8 caractères.');
+      return;
+    }
+    
+    // Validation email unique
+    const email = formData.get('email');
+    const username = formData.get('username');
+    
+    // Simulation de l'envoi (remplacer par un vrai appel API)
+    const submitButton = document.querySelector('button[type="submit"][form="addAdminForm"]');
+    const originalText = submitButton.innerHTML;
+    submitButton.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Création...';
+    submitButton.disabled = true;
+    
+    // Simulation d'un délai d'API
+    setTimeout(() => {
+      // Ici, vous feriez un vrai appel AJAX vers votre backend Django
+      createAdmin(formData);
+    }, 1500);
+  });
+  
+  // Fonction pour créer l'administrateur (simulation)
+  function createAdmin(formData) {
+    // Appel AJAX vers Django
+    fetch('{% url "admin_add_admin" %}', {
+      method: 'POST',
+      body: formData,
+      headers: {
+        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+      }
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        // Succès
+        closeAddAdminModal();
+        
+        // Afficher un message de succès
+        showSuccessMessage(`Administrateur ${formData.get('first_name')} ${formData.get('last_name')} créé avec succès !`);
+        
+        // Optionnel: Recharger la page ou mettre à jour la liste
+        // location.reload();
+      } else {
+        // Erreur
+        alert('Erreur lors de la création: ' + (data.error || 'Erreur inconnue'));
+      }
+    })
+    .catch(error => {
+      console.error('Erreur:', error);
+      alert('Erreur de connexion. Veuillez réessayer.');
+    })
+    .finally(() => {
+      // Réinitialiser le bouton
+      const submitButton = document.querySelector('button[type="submit"][form="addAdminForm"]');
+      submitButton.innerHTML = '<i class="fas fa-user-shield mr-2"></i>Créer l\'administrateur';
+      submitButton.disabled = false;
+    });
+  }
+  
+  // Fonction pour afficher un message de succès
+  function showSuccessMessage(message) {
+    const alertDiv = document.createElement('div');
+    alertDiv.className = 'fixed top-4 right-4 bg-green-500 text-white px-6 py-4 rounded-lg shadow-lg z-50 fade-in';
+    alertDiv.innerHTML = `
+      <div class="flex items-center space-x-3">
+        <i class="fas fa-check-circle text-xl"></i>
+        <span>${message}</span>
+        <button onclick="this.parentElement.parentElement.remove()" class="ml-4 text-white hover:text-gray-200">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+    `;
+    
+    document.body.appendChild(alertDiv);
+    
+    // Auto-suppression après 5 secondes
+    setTimeout(() => {
+      if (alertDiv.parentElement) {
+        alertDiv.remove();
+      }
+    }, 5000);
+  }
+  
+  // Génération automatique du nom d'utilisateur
+  document.querySelector('input[name="first_name"]').addEventListener('input', generateUsername);
+  document.querySelector('input[name="last_name"]').addEventListener('input', generateUsername);
+  
+  function generateUsername() {
+    const firstName = document.querySelector('input[name="first_name"]').value.toLowerCase();
+    const lastName = document.querySelector('input[name="last_name"]').value.toLowerCase();
+    
+    if (firstName && lastName) {
+      const username = `${firstName}.${lastName}`;
+      document.querySelector('input[name="username"]').value = username;
+    }
+  }
+  
+  // Validation en temps réel de l'email
+  document.querySelector('input[name="email"]').addEventListener('blur', function() {
+    const email = this.value;
+    if (email) {
+      // Simulation de vérification d'unicité de l'email
+      // Dans un vrai projet, ce serait un appel AJAX
+      console.log('Vérification de l\'unicité de l\'email:', email);
+    }
+  });
+
+  // Mise à jour automatique des statistiques
+  function updateStats() {
+    fetch('{% url "admin_dashboard_stats" %}')
+      .then(response => response.json())
+      .then(data => {
+        // Mettre à jour les statistiques
+        if (data.stats) {
+          document.querySelector('[data-stat="clients"]').textContent = data.stats.total_clients;
+          document.querySelector('[data-stat="collectes"]').textContent = data.stats.collectes_today;
+          document.querySelector('[data-stat="agents"]').textContent = data.stats.agents_active;
+          document.querySelector('[data-stat="revenue"]').textContent = data.stats.revenue_month + ' F';
+        }
+      })
+      .catch(error => console.error('Erreur de mise à jour:', error));
+  }
+  
+  // Mise à jour toutes les 30 secondes
+  setInterval(updateStats, 30000);
+  
+  // Animation des barres de progression
+  document.addEventListener('DOMContentLoaded', function() {
+    const progressBars = document.querySelectorAll('[style*="width"]');
+    progressBars.forEach(bar => {
+      const width = bar.style.width;
+      bar.style.width = '0%';
+      setTimeout(() => {
+        bar.style.width = width;
+      }, 500);
+    });
+  });
+</script>
+{% endblock %}

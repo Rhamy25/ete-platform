@@ -1,0 +1,124 @@
+{% extends 'admin_custom/base_admin.html' %}
+
+{% block title %}Test Admin - ETE{% endblock %}
+{% block page_title %}Interface d'Administration ETE{% endblock %}
+{% block page_subtitle %}Gestion complète de votre plateforme{% endblock %}
+
+{% block content %}
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+  
+  <!-- Card Clients -->
+  <div class="bg-white rounded-xl shadow-lg p-6">
+    <div class="flex items-center justify-between">
+      <div>
+        <h3 class="text-lg font-semibold text-gray-900">Clients</h3>
+        <p class="text-3xl font-bold text-blue-600 mt-2">156</p>
+        <p class="text-sm text-gray-500">+12 ce mois</p>
+      </div>
+      <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+        <i class="fas fa-users text-blue-600 text-xl"></i>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Card Agents -->
+  <div class="bg-white rounded-xl shadow-lg p-6">
+    <div class="flex items-center justify-between">
+      <div>
+        <h3 class="text-lg font-semibold text-gray-900">Agents</h3>
+        <p class="text-3xl font-bold text-green-600 mt-2">24</p>
+        <p class="text-sm text-gray-500">18 actifs</p>
+      </div>
+      <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+        <i class="fas fa-user-hard-hat text-green-600 text-xl"></i>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Card Collectes -->
+  <div class="bg-white rounded-xl shadow-lg p-6">
+    <div class="flex items-center justify-between">
+      <div>
+        <h3 class="text-lg font-semibold text-gray-900">Collectes</h3>
+        <p class="text-3xl font-bold text-purple-600 mt-2">45</p>
+        <p class="text-sm text-gray-500">Aujourd'hui</p>
+      </div>
+      <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+        <i class="fas fa-trash-can text-purple-600 text-xl"></i>
+      </div>
+    </div>
+  </div>
+  
+</div>
+
+<!-- Actions rapides -->
+<div class="bg-white rounded-xl shadow-lg p-6">
+  <h3 class="text-lg font-semibold text-gray-900 mb-6">Actions rapides</h3>
+  
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+    <button class="flex flex-col items-center p-6 border-2 border-dashed border-gray-300 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-colors">
+      <i class="fas fa-user-plus text-2xl text-gray-400 mb-2"></i>
+      <span class="font-medium text-gray-700">Nouveau Client</span>
+    </button>
+    
+    <button class="flex flex-col items-center p-6 border-2 border-dashed border-gray-300 rounded-lg hover:border-green-500 hover:bg-green-50 transition-colors">
+      <i class="fas fa-hard-hat text-2xl text-gray-400 mb-2"></i>
+      <span class="font-medium text-gray-700">Nouvel Agent</span>
+    </button>
+    
+    <button class="flex flex-col items-center p-6 border-2 border-dashed border-gray-300 rounded-lg hover:border-purple-500 hover:bg-purple-50 transition-colors">
+      <i class="fas fa-calendar-plus text-2xl text-gray-400 mb-2"></i>
+      <span class="font-medium text-gray-700">Planifier Collecte</span>
+    </button>
+    
+    <button class="flex flex-col items-center p-6 border-2 border-dashed border-gray-300 rounded-lg hover:border-orange-500 hover:bg-orange-50 transition-colors">
+      <i class="fas fa-chart-bar text-2xl text-gray-400 mb-2"></i>
+      <span class="font-medium text-gray-700">Voir Rapports</span>
+    </button>
+  </div>
+</div>
+
+<!-- Tableau récent -->
+<div class="mt-8 bg-white rounded-xl shadow-lg">
+  <div class="px-6 py-4 border-b border-gray-200">
+    <h3 class="text-lg font-semibold text-gray-900">Activités récentes</h3>
+  </div>
+  
+  <div class="p-6">
+    <div class="space-y-4">
+      <div class="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
+        <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+          <i class="fas fa-user text-blue-600 text-sm"></i>
+        </div>
+        <div class="flex-1">
+          <p class="font-medium">Nouveau client inscrit</p>
+          <p class="text-sm text-gray-500">Jean Dupont - Secteur 15</p>
+        </div>
+        <span class="text-xs text-gray-400">Il y a 2h</span>
+      </div>
+      
+      <div class="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
+        <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
+          <i class="fas fa-check text-green-600 text-sm"></i>
+        </div>
+        <div class="flex-1">
+          <p class="font-medium">Collecte terminée</p>
+          <p class="text-sm text-gray-500">Agent #002 - Zone Nord</p>
+        </div>
+        <span class="text-xs text-gray-400">Il y a 3h</span>
+      </div>
+      
+      <div class="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
+        <div class="w-8 h-8 bg-yellow-100 rounded-full flex items-center justify-center">
+          <i class="fas fa-credit-card text-yellow-600 text-sm"></i>
+        </div>
+        <div class="flex-1">
+          <p class="font-medium">Paiement reçu</p>
+          <p class="text-sm text-gray-500">25,000 FCFA - Mobile Money</p>
+        </div>
+        <span class="text-xs text-gray-400">Il y a 5h</span>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,325 @@
+{% extends 'admin_custom/base_admin.html' %}
+{% load static %}
+
+{% block page_title %}Zones de Collecte{% endblock %}
+{% block page_subtitle %}Gestion des zones et secteurs de collecte{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+  
+  <!-- En-tête avec statistiques -->
+  <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+    
+    <!-- Total zones -->
+    <div class="bg-white rounded-xl p-6 card-shadow">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-sm font-medium text-gray-500">Total Zones</p>
+          <p class="text-2xl font-bold text-gray-900">{{ total_zones }}</p>
+        </div>
+        <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+          <i class="fas fa-map-marked-alt text-blue-600 text-xl"></i>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Zones actives -->
+    <div class="bg-white rounded-xl p-6 card-shadow">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-sm font-medium text-gray-500">Zones Actives</p>
+          <p class="text-2xl font-bold text-green-600">{{ zones_actives }}</p>
+        </div>
+        <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+          <i class="fas fa-check-circle text-green-600 text-xl"></i>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Total clients -->
+    <div class="bg-white rounded-xl p-6 card-shadow">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-sm font-medium text-gray-500">Total Clients</p>
+          <p class="text-2xl font-bold text-primary">
+            {% widthratio zones|length 1 1 as zones_count %}
+            {% if zones_count > 0 %}
+              {{ zones.0.clients_count|default:0 }}
+            {% else %}
+              0
+            {% endif %}
+          </p>
+        </div>
+        <div class="w-12 h-12 bg-teal-100 rounded-full flex items-center justify-center">
+          <i class="fas fa-users text-primary text-xl"></i>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Couverture -->
+    <div class="bg-white rounded-xl p-6 card-shadow">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-sm font-medium text-gray-500">Couverture</p>
+          <p class="text-2xl font-bold text-purple-600">
+            {% if total_zones > 0 %}
+              {% widthratio zones_actives total_zones 100 %}%
+            {% else %}
+              0%
+            {% endif %}
+          </p>
+        </div>
+        <div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
+          <i class="fas fa-chart-pie text-purple-600 text-xl"></i>
+        </div>
+      </div>
+    </div>
+    
+  </div>
+  
+  <!-- Filtres et recherche -->
+  <div class="bg-white rounded-xl p-6 card-shadow">
+    <form method="GET" class="space-y-4 md:space-y-0 md:flex md:items-end md:space-x-4">
+      
+      <!-- Recherche -->
+      <div class="flex-1">
+        <label class="block text-sm font-medium text-gray-700 mb-2">Rechercher une zone</label>
+        <div class="relative">
+          <input type="text" 
+                 name="search" 
+                 value="{{ search_query }}"
+                 placeholder="Nom de zone, description..." 
+                 class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary">
+          <div class="absolute inset-y-0 left-0 pl-3 flex items-center">
+            <i class="fas fa-search text-gray-400"></i>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Tri par code -->
+      <div class="w-full md:w-48">
+        <label class="block text-sm font-medium text-gray-700 mb-2">Trier par</label>
+        <select name="sort" class="w-full py-2 px-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary">
+          <option value="nom_zone">Nom de zone</option>
+          <option value="code_zone">Code de zone</option>
+          <option value="created_at">Date de création</option>
+        </select>
+      </div>
+      
+      <!-- Boutons -->
+      <div class="flex space-x-2">
+        <button type="submit" class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors">
+          <i class="fas fa-search mr-2"></i>Filtrer
+        </button>
+        <a href="{% url 'admin_zones' %}" class="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors">
+          <i class="fas fa-times mr-2"></i>Reset
+        </a>
+      </div>
+      
+    </form>
+  </div>
+  
+  <!-- Actions rapides -->
+  <div class="flex flex-wrap items-center justify-between gap-4">
+    <div class="flex flex-wrap gap-2">
+      <button class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors">
+        <i class="fas fa-plus mr-2"></i>Nouvelle zone
+      </button>
+      <button class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+        <i class="fas fa-map mr-2"></i>Voir carte
+      </button>
+      <button class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
+        <i class="fas fa-file-excel mr-2"></i>Exporter
+      </button>
+    </div>
+    
+    <!-- Résultats -->
+    <p class="text-sm text-gray-500">
+      <strong>{{ zones|length }}</strong> zone{{ zones|length|pluralize }} trouvée{{ zones|length|pluralize }}
+    </p>
+  </div>
+  
+  <!-- Grille des zones -->
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    {% for zone in zones %}
+      <div class="bg-white rounded-xl card-shadow overflow-hidden hover:shadow-lg transition-shadow">
+        
+        <!-- En-tête de carte -->
+        <div class="bg-gradient-to-r from-primary to-primary-light p-4">
+          <div class="flex items-center justify-between">
+            <h3 class="text-lg font-semibold text-white">{{ zone.nom_zone }}</h3>
+            <span class="inline-flex items-center px-2 py-1 text-xs font-medium rounded-full bg-white/20 text-white">
+              <span class="w-1.5 h-1.5 bg-white rounded-full mr-1"></span>
+              Disponible
+            </span>
+          </div>
+          {% if zone.description %}
+            <p class="text-white/80 text-sm mt-1">{{ zone.description|truncatechars:60 }}</p>
+          {% endif %}
+        </div>
+        
+        <!-- Contenu de carte -->
+        <div class="p-4">
+          
+          <!-- Statistiques -->
+          <div class="grid grid-cols-2 gap-4 mb-4">
+            <div class="text-center">
+              <div class="text-2xl font-bold text-primary">{{ zone.clients_count }}</div>
+              <div class="text-xs text-gray-500">Client{{ zone.clients_count|pluralize }}</div>
+            </div>
+            <div class="text-center">
+              <div class="text-2xl font-bold text-blue-600">{{ zone.agents_count }}</div>
+              <div class="text-xs text-gray-500">Agent{{ zone.agents_count|pluralize }}</div>
+            </div>
+          </div>
+          
+          <!-- Informations détaillées -->
+          <div class="space-y-2 text-sm">
+            <div class="flex items-center text-gray-600">
+              <i class="fas fa-tag w-4 mr-2 text-gray-400"></i>
+              <span>{{ zone.code_zone }}</span>
+            </div>
+            
+            {% if zone.coordonnees_zone %}
+              <div class="flex items-center text-gray-600">
+                <i class="fas fa-map-pin w-4 mr-2 text-gray-400"></i>
+                <span class="truncate">Zone délimitée</span>
+              </div>
+            {% endif %}
+            
+            {% if zone.responsable %}
+              <div class="flex items-center text-gray-600">
+                <i class="fas fa-user-tie w-4 mr-2 text-gray-400"></i>
+                <span>{{ zone.responsable.get_full_name }}</span>
+              </div>
+            {% endif %}
+            
+            <div class="flex items-center text-gray-600">
+              <i class="fas fa-calendar w-4 mr-2 text-gray-400"></i>
+              <span>Créée le {{ zone.created_at|date:"d/m/Y" }}</span>
+            </div>
+          </div>
+          
+          <!-- Actions -->
+          <div class="flex justify-between items-center mt-4 pt-4 border-t border-gray-100">
+            <div class="flex space-x-1">
+              <button class="p-2 text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-lg transition-colors" title="Voir détails">
+                <i class="fas fa-eye"></i>
+              </button>
+              <button class="p-2 text-green-600 hover:text-green-800 hover:bg-green-50 rounded-lg transition-colors" title="Modifier">
+                <i class="fas fa-edit"></i>
+              </button>
+              <button class="p-2 text-purple-600 hover:text-purple-800 hover:bg-purple-50 rounded-lg transition-colors" title="Voir sur carte">
+                <i class="fas fa-map-marked-alt"></i>
+              </button>
+            </div>
+            
+            <button class="px-3 py-1 text-xs bg-primary/10 text-primary rounded-full hover:bg-primary/20 transition-colors">
+              Gérer
+            </button>
+          </div>
+          
+        </div>
+      </div>
+    {% empty %}
+      <div class="col-span-full">
+        <div class="bg-white rounded-xl p-12 text-center card-shadow">
+          <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <i class="fas fa-map-marked-alt text-gray-400 text-2xl"></i>
+          </div>
+          <h3 class="text-lg font-medium text-gray-900 mb-2">Aucune zone trouvée</h3>
+          <p class="text-gray-500 mb-4">
+            {% if search_query or status_filter %}
+              Aucune zone ne correspond aux critères de recherche.
+            {% else %}
+              Commencez par créer des zones de collecte.
+            {% endif %}
+          </p>
+          <button class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors">
+            <i class="fas fa-plus mr-2"></i>Créer une zone
+          </button>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+  
+  <!-- Carte interactive (placeholder) -->
+  {% if zones %}
+    <div class="bg-white rounded-xl p-6 card-shadow">
+      <h3 class="text-lg font-semibold text-gray-900 mb-4">
+        <i class="fas fa-map text-primary mr-2"></i>
+        Vue d&#39;ensemble des zones
+      </h3>
+      
+      <!-- Placeholder pour la carte -->
+      <div class="bg-gray-50 rounded-lg h-64 flex items-center justify-center border-2 border-dashed border-gray-300">
+        <div class="text-center">
+          <i class="fas fa-map text-gray-400 text-3xl mb-2"></i>
+          <p class="text-gray-500 font-medium">Carte interactive</p>
+          <p class="text-gray-400 text-sm">Intégration OpenStreetMap à venir</p>
+          <button class="mt-3 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors">
+            <i class="fas fa-external-link-alt mr-2"></i>Ouvrir dans Google Maps
+          </button>
+        </div>
+      </div>
+      
+      <!-- Légende -->
+      <div class="mt-4 flex flex-wrap items-center justify-center space-x-6 text-sm">
+        <div class="flex items-center">
+          <div class="w-3 h-3 bg-green-500 rounded-full mr-2"></div>
+          <span class="text-gray-600">Zones actives ({{ zones_actives }})</span>
+        </div>
+        <div class="flex items-center">
+          <div class="w-3 h-3 bg-red-500 rounded-full mr-2"></div>
+          <span class="text-gray-600">Zones inactives ({{ total_zones|add:zones_actives|add:"-"|add:zones_actives }})</span>
+        </div>
+        <div class="flex items-center">
+          <div class="w-3 h-3 bg-blue-500 rounded-full mr-2"></div>
+          <span class="text-gray-600">Avec agents assignés</span>
+        </div>
+      </div>
+    </div>
+  {% endif %}
+  
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  // Gestion des filtres de zones
+  document.addEventListener('DOMContentLoaded', function() {
+    // Auto-submit du formulaire de recherche après un délai
+    const searchInput = document.querySelector('input[name="search"]');
+    const statusSelect = document.querySelector('select[name="status"]');
+    
+    let searchTimeout;
+    
+    if (searchInput) {
+      searchInput.addEventListener('input', function() {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(() => {
+          this.form.submit();
+        }, 500);
+      });
+    }
+    
+    if (statusSelect) {
+      statusSelect.addEventListener('change', function() {
+        this.form.submit();
+      });
+    }
+    
+    // Animation des cartes au survol
+    const zoneCards = document.querySelectorAll('.bg-white.rounded-xl.card-shadow');
+    zoneCards.forEach(card => {
+      card.addEventListener('mouseenter', function() {
+        this.style.transform = 'translateY(-2px)';
+      });
+      
+      card.addEventListener('mouseleave', function() {
+        this.style.transform = 'translateY(0)';
+      });
+    });
+  });
+</script>
+{% endblock %}

@@ -1,0 +1,380 @@
+{% extends 'admin_custom/base_admin.html' %}
+{% load static %}
+
+{% block page_title %}Agents{% endblock %}
+{% block page_subtitle %}Gestion des agents et équipes{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+  
+  <!-- En-tête avec statistiques -->
+  <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+    
+    <!-- Total agents -->
+    <div class="bg-white rounded-xl p-6 card-shadow">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-sm font-medium text-gray-500">Total Agents</p>
+          <p class="text-2xl font-bold text-gray-900">{{ total_agents }}</p>
+        </div>
+        <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+          <i class="fas fa-users text-blue-600 text-xl"></i>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Agents actifs -->
+    <div class="bg-white rounded-xl p-6 card-shadow">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-sm font-medium text-gray-500">Actifs</p>
+          <p class="text-2xl font-bold text-green-600">{{ agents_actifs|default:0 }}</p>
+        </div>
+        <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+          <i class="fas fa-user-check text-green-600 text-xl"></i>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Sessions en cours -->
+    <div class="bg-white rounded-xl p-6 card-shadow">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-sm font-medium text-gray-500">En mission</p>
+          <p class="text-2xl font-bold text-primary">{{ sessions_actives|length }}</p>
+        </div>
+        <div class="w-12 h-12 bg-teal-100 rounded-full flex items-center justify-center">
+          <i class="fas fa-route text-primary text-xl"></i>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Équipes -->
+    <div class="bg-white rounded-xl p-6 card-shadow">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-sm font-medium text-gray-500">Équipes</p>
+          <p class="text-2xl font-bold text-purple-600">{{ equipes|length }}</p>
+        </div>
+        <div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
+          <i class="fas fa-users-gear text-purple-600 text-xl"></i>
+        </div>
+      </div>
+    </div>
+    
+  </div>
+  
+  <!-- Filtres et recherche -->
+  <div class="bg-white rounded-xl p-6 card-shadow">
+    <form method="GET" class="space-y-4 md:space-y-0 md:flex md:items-end md:space-x-4">
+      
+      <!-- Recherche -->
+      <div class="flex-1">
+        <label class="block text-sm font-medium text-gray-700 mb-2">Rechercher un agent</label>
+        <div class="relative">
+          <input type="text" 
+                 name="search" 
+                 value="{{ search_query }}"
+                 placeholder="Nom, prénom, matricule ou email..." 
+                 class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary">
+          <div class="absolute inset-y-0 left-0 pl-3 flex items-center">
+            <i class="fas fa-search text-gray-400"></i>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Filtre équipe -->
+      <div class="w-full md:w-48">
+        <label class="block text-sm font-medium text-gray-700 mb-2">Équipe</label>
+        <select name="equipe" class="w-full py-2 px-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary">
+          <option value="">Toutes les équipes</option>
+          {% for equipe in equipes %}
+            <option value="{{ equipe.id }}" {% if equipe_filter == equipe.id|stringformat:"s" %}selected{% endif %}>
+              {{ equipe.nom }}
+            </option>
+          {% endfor %}
+        </select>
+      </div>
+      
+      <!-- Filtre statut -->
+      <div class="w-full md:w-48">
+        <label class="block text-sm font-medium text-gray-700 mb-2">Statut</label>
+        <select name="status" class="w-full py-2 px-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary">
+          <option value="">Tous les statuts</option>
+          <option value="actif" {% if status_filter == 'actif' %}selected{% endif %}>Actif</option>
+          <option value="inactif" {% if status_filter == 'inactif' %}selected{% endif %}>Inactif</option>
+          <option value="suspendu" {% if status_filter == 'suspendu' %}selected{% endif %}>Suspendu</option>
+        </select>
+      </div>
+      
+      <!-- Filtre type/poste -->
+      <div class="w-full md:w-48">
+        <label class="block text-sm font-medium text-gray-700 mb-2">Type/Poste</label>
+        <select name="poste" class="w-full py-2 px-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary">
+          <option value="">Tous les postes</option>
+          <option value="collecteur_argent" {% if poste_filter == 'collecteur_argent' %}selected{% endif %}>Collecteur d&#39;argent</option>
+          <option value="ramasseur_ordures" {% if poste_filter == 'ramasseur_ordures' %}selected{% endif %}>Ramasseur d&#39;ordures</option>
+          <option value="superviseur" {% if poste_filter == 'superviseur' %}selected{% endif %}>Superviseur</option>
+          <option value="agent_prospection" {% if poste_filter == 'agent_prospection' %}selected{% endif %}>Agent de prospection</option>
+          <option value="chauffeur" {% if poste_filter == 'chauffeur' %}selected{% endif %}>Chauffeur</option>
+        </select>
+      </div>
+      
+      <!-- Boutons -->
+      <div class="flex space-x-2">
+        <button type="submit" class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors">
+          <i class="fas fa-search mr-2"></i>Filtrer
+        </button>
+        <a href="{% url 'admin_agents' %}" class="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors">
+          <i class="fas fa-times mr-2"></i>Reset
+        </a>
+      </div>
+      
+    </form>
+  </div>
+  
+  <!-- Actions rapides -->
+  <div class="flex flex-wrap items-center justify-between gap-4">
+    <div class="flex flex-wrap gap-2">
+      <button class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors">
+        <i class="fas fa-plus mr-2"></i>Nouvel agent
+      </button>
+      <button class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+        <i class="fas fa-users-gear mr-2"></i>Gérer équipes
+      </button>
+      <button class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
+        <i class="fas fa-file-excel mr-2"></i>Exporter
+      </button>
+    </div>
+    
+    <!-- Résultats -->
+    <p class="text-sm text-gray-500">
+      <strong>{{ agents.paginator.count }}</strong> agent{{ agents.paginator.count|pluralize }} trouvé{{ agents.paginator.count|pluralize }}
+    </p>
+  </div>
+  
+  <!-- Liste des agents -->
+  <div class="bg-white rounded-xl card-shadow overflow-hidden">
+    
+    <!-- En-têtes du tableau -->
+    <div class="bg-gray-50 px-6 py-3 border-b border-gray-200">
+      <div class="grid grid-cols-12 gap-4 text-xs font-medium text-gray-500 uppercase tracking-wider">
+        <div class="col-span-3">Agent</div>
+        <div class="col-span-2">Équipe</div>
+        <div class="col-span-2">Type</div>
+        <div class="col-span-2">Statut</div>
+        <div class="col-span-2">Véhicule</div>
+        <div class="col-span-1">Actions</div>
+      </div>
+    </div>
+    
+    <!-- Corps du tableau -->
+    <div class="divide-y divide-gray-200">
+      {% for agent in agents %}
+        <div class="px-6 py-4 hover:bg-gray-50 transition-colors">
+          <div class="grid grid-cols-12 gap-4 items-center">
+            
+            <!-- Informations agent -->
+            <div class="col-span-3">
+              <div class="flex items-center space-x-3">
+                <img src="https://ui-avatars.com/api/?name={{ agent.user.get_full_name }}&background=0f766e&color=ffffff" 
+                     alt="Avatar" class="w-10 h-10 rounded-full">
+                <div>
+                  <p class="font-semibold text-gray-900">{{ agent.user.get_full_name }}</p>
+                  <p class="text-sm text-gray-500">{{ agent.matricule }}</p>
+                  <p class="text-xs text-gray-400">{{ agent.user.phone|default:"---" }}</p>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Équipe -->
+            <div class="col-span-2">
+              {% if agent.equipes.exists %}
+                {% for equipe in agent.equipes.all|slice:":1" %}
+                  <div class="flex items-center space-x-2">
+                    <span class="inline-block w-3 h-3 bg-blue-500 rounded-full"></span>
+                    <span class="text-sm font-medium">{{ equipe.nom_equipe }}</span>
+                  </div>
+                  <p class="text-xs text-gray-500 mt-1">{{ equipe.nombre_membres }} membre{{ equipe.nombre_membres|pluralize }}</p>
+                {% endfor %}
+                {% if agent.equipes.count > 1 %}
+                  <p class="text-xs text-blue-600 mt-1">+{{ agent.equipes.count|add:"-1" }} autre{{ agent.equipes.count|add:"-1"|pluralize }}</p>
+                {% endif %}
+              {% else %}
+                <span class="text-sm text-gray-400">Non assigné</span>
+              {% endif %}
+            </div>
+            
+            <!-- Type -->
+            <div class="col-span-2">
+              <span class="inline-flex px-2 py-1 text-xs font-medium rounded-full {% if agent.poste == 'collecteur_argent' %}bg-yellow-100 text-yellow-800{% elif agent.poste == 'ramasseur_ordures' %}bg-green-100 text-green-800{% elif agent.poste == 'superviseur' %}bg-red-100 text-red-800{% elif agent.poste == 'agent_prospection' %}bg-purple-100 text-purple-800{% elif agent.poste == 'chauffeur' %}bg-blue-100 text-blue-800{% else %}bg-gray-100 text-gray-800{% endif %}">
+                {{ agent.get_poste_display }}
+              </span>
+            </div>
+            
+            <!-- Statut -->
+            <div class="col-span-2">
+              <span class="inline-flex items-center px-2 py-1 text-xs font-medium rounded-full {% if agent.status == 'actif' %}bg-green-100 text-green-800{% elif agent.status == 'inactif' %}bg-gray-100 text-gray-800{% elif agent.status == 'suspendu' %}bg-red-100 text-red-800{% else %}bg-yellow-100 text-yellow-800{% endif %}">
+                <span class="w-1.5 h-1.5 rounded-full mr-1 {% if agent.status == 'actif' %}bg-green-600{% elif agent.status == 'inactif' %}bg-gray-600{% elif agent.status == 'suspendu' %}bg-red-600{% else %}bg-yellow-600{% endif %}"></span>
+                {{ agent.get_status_display|default:agent.status|capfirst }}
+              </span>
+            </div>
+            
+            <!-- Véhicule -->
+            <div class="col-span-2">
+              {% if agent.vehicule_assigne %}
+                <div class="text-sm">
+                  <p class="font-medium text-gray-900">{{ agent.vehicule_assigne.numero_plaque }}</p>
+                  <p class="text-xs text-gray-500">{{ agent.vehicule_assigne.marque }} {{ agent.vehicule_assigne.modele }}</p>
+                </div>
+              {% else %}
+                <span class="text-sm text-gray-400">Aucun véhicule</span>
+              {% endif %}
+            </div>
+            
+            <!-- Actions -->
+            <div class="col-span-1">
+              <div class="flex space-x-1">
+                <button class="p-1 text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded" title="Voir détails">
+                  <i class="fas fa-eye text-sm"></i>
+                </button>
+                <button class="p-1 text-green-600 hover:text-green-800 hover:bg-green-50 rounded" title="Modifier">
+                  <i class="fas fa-edit text-sm"></i>
+                </button>
+                {% if agent.status == 'actif' %}
+                  <button class="p-1 text-orange-600 hover:text-orange-800 hover:bg-orange-50 rounded" title="Suspendre">
+                    <i class="fas fa-pause text-sm"></i>
+                  </button>
+                {% else %}
+                  <button class="p-1 text-green-600 hover:text-green-800 hover:bg-green-50 rounded" title="Activer">
+                    <i class="fas fa-play text-sm"></i>
+                  </button>
+                {% endif %}
+              </div>
+            </div>
+            
+          </div>
+        </div>
+      {% empty %}
+        <div class="px-6 py-12 text-center">
+          <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <i class="fas fa-users text-gray-400 text-2xl"></i>
+          </div>
+          <h3 class="text-lg font-medium text-gray-900 mb-2">Aucun agent trouvé</h3>
+          <p class="text-gray-500 mb-4">
+            {% if search_query or equipe_filter or status_filter or poste_filter %}
+              Aucun agent ne correspond aux critères de recherche.
+            {% else %}
+              Commencez par ajouter des agents à votre équipe.
+            {% endif %}
+          </p>
+          <button class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors">
+            <i class="fas fa-plus mr-2"></i>Ajouter un agent
+          </button>
+        </div>
+      {% endfor %}
+    </div>
+    
+    <!-- Pagination -->
+    {% if agents.has_other_pages %}
+      <div class="bg-white px-4 py-3 border-t border-gray-200 sm:px-6">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center">
+            <p class="text-sm text-gray-700">
+              Page <span class="font-medium">{{ agents.number }}</span>
+              sur <span class="font-medium">{{ agents.paginator.num_pages }}</span>
+              (<span class="font-medium">{{ agents.paginator.count }}</span> résultat{{ agents.paginator.count|pluralize }})
+            </p>
+          </div>
+          
+          <nav class="flex space-x-2">
+            {% if agents.has_previous %}
+              <a href="?page=1{% if search_query %}&search={{ search_query }}{% endif %}{% if equipe_filter %}&equipe={{ equipe_filter }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if poste_filter %}&poste={{ poste_filter }}{% endif %}" 
+                 class="px-3 py-1 text-sm bg-gray-100 text-gray-700 rounded hover:bg-gray-200 transition-colors">
+                ««
+              </a>
+              <a href="?page={{ agents.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if equipe_filter %}&equipe={{ equipe_filter }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if poste_filter %}&poste={{ poste_filter }}{% endif %}" 
+                 class="px-3 py-1 text-sm bg-gray-100 text-gray-700 rounded hover:bg-gray-200 transition-colors">
+                «
+              </a>
+            {% endif %}
+            
+            <span class="px-3 py-1 text-sm bg-primary text-white rounded">
+              {{ agents.number }}
+            </span>
+            
+            {% if agents.has_next %}
+              <a href="?page={{ agents.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if equipe_filter %}&equipe={{ equipe_filter }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if poste_filter %}&poste={{ poste_filter }}{% endif %}" 
+                 class="px-3 py-1 text-sm bg-gray-100 text-gray-700 rounded hover:bg-gray-200 transition-colors">
+                »
+              </a>
+              <a href="?page={{ agents.paginator.num_pages }}{% if search_query %}&search={{ search_query }}{% endif %}{% if equipe_filter %}&equipe={{ equipe_filter }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if poste_filter %}&poste={{ poste_filter }}{% endif %}" 
+                 class="px-3 py-1 text-sm bg-gray-100 text-gray-700 rounded hover:bg-gray-200 transition-colors">
+                »»
+              </a>
+            {% endif %}
+          </nav>
+        </div>
+      </div>
+    {% endif %}
+    
+  </div>
+  
+  <!-- Sessions actives (si disponibles) -->
+  {% if sessions_actives %}
+    <div class="bg-white rounded-xl p-6 card-shadow">
+      <h3 class="text-lg font-semibold text-gray-900 mb-4">
+        <i class="fas fa-route text-primary mr-2"></i>
+        Sessions en cours
+      </h3>
+      
+      <div class="space-y-3">
+        {% for session in sessions_actives %}
+          <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+            <div class="flex items-center space-x-3">
+              <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+              <div>
+                <p class="font-medium">{{ session.agent.user.get_full_name }}</p>
+                <p class="text-sm text-gray-500">Zone: {{ session.zone.nom }}</p>
+              </div>
+            </div>
+            <div class="text-right">
+              <p class="text-sm font-medium text-green-600">En cours</p>
+              <p class="text-xs text-gray-500">Démarré à {{ session.heure_debut|time:"H:i" }}</p>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  {% endif %}
+  
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  // Gestion des actions sur les agents
+  document.addEventListener('DOMContentLoaded', function() {
+    // Auto-submit du formulaire de recherche après un délai
+    const searchInput = document.querySelector('input[name="search"]');
+    const selectFilters = document.querySelectorAll('select[name="equipe"], select[name="status"], select[name="poste"]');
+    
+    let searchTimeout;
+    
+    if (searchInput) {
+      searchInput.addEventListener('input', function() {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(() => {
+          this.form.submit();
+        }, 500);
+      });
+    }
+    
+    selectFilters.forEach(select => {
+      select.addEventListener('change', function() {
+        this.form.submit();
+      });
+    });
+  });
+</script>
+{% endblock %}

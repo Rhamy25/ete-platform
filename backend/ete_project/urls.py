@@ -27,8 +27,15 @@ urlpatterns = [
     path('', views.home_view, name='home'),
     path('api/status/', views.api_status, name='api_status'),
     
+    # Authentification administration
+    path('login/', views.admin_login_view, name='admin_login'),
+    path('logout/', views.admin_logout_view, name='admin_logout'),
+    
     # Administration Django
     path('admin/', admin.site.urls),
+    
+    # Interface d'administration personnalisée
+    path('administration/', include('admin_urls')),
     
     # API REST
     path('api/', include(router.urls)),

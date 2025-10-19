@@ -1,0 +1,456 @@
+{% extends 'admin_custom/base_admin.html' %}
+{% load static %}
+
+{% block title %}Rapports - Administration ETE{% endblock %}
+
+{% block page_title %}Rapports & Analyses{% endblock %}
+{% block page_subtitle %}Analyses de performance et statistiques détaillées{% endblock %}
+
+{% block content %}
+
+<div class="space-y-6">
+
+  <!-- Filtres de période -->
+  <div class="bg-white rounded-lg shadow-sm p-6">
+    <h2 class="text-lg font-semibold text-gray-800 mb-4">
+      <i class="fas fa-filter mr-2 text-primary"></i>
+      Période d'analyse
+    </h2>
+    
+    <form method="GET" class="flex flex-wrap gap-4 items-end">
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2">Du</label>
+        <input type="date" name="date_debut" value="{{ date_debut }}" 
+               class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary">
+      </div>
+      
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2">Au</label>
+        <input type="date" name="date_fin" value="{{ date_fin }}" 
+               class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary">
+      </div>
+      
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2">Période prédéfinie</label>
+        <select name="periode" class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary">
+          <option value="">Personnalisée</option>
+          <option value="today" {% if periode == 'today' %}selected{% endif %}>Aujourd'hui</option>
+          <option value="week" {% if periode == 'week' %}selected{% endif %}>Cette semaine</option>
+          <option value="month" {% if periode == 'month' %}selected{% endif %}>Ce mois</option>
+          <option value="quarter" {% if periode == 'quarter' %}selected{% endif %}>Ce trimestre</option>
+          <option value="year" {% if periode == 'year' %}selected{% endif %}>Cette année</option>
+        </select>
+      </div>
+      
+      <button type="submit" class="bg-primary text-white px-6 py-2 rounded-lg hover:bg-primary-dark transition-colors">
+        <i class="fas fa-search mr-2"></i>
+        Analyser
+      </button>
+      
+      <button type="button" onclick="exportReport()" class="bg-gray-600 text-white px-6 py-2 rounded-lg hover:bg-gray-700 transition-colors">
+        <i class="fas fa-download mr-2"></i>
+        Exporter PDF
+      </button>
+    </form>
+  </div>
+
+  <!-- Métriques principales -->
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+    
+    <!-- Revenus totaux -->
+    <div class="bg-gradient-to-br from-green-50 to-green-100 border border-green-200 rounded-lg p-6">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-sm font-medium text-green-600">Revenus totaux</p>
+          <p class="text-2xl font-bold text-green-900">{{ stats.revenus_totaux|floatformat:0 }} FCFA</p>
+          <p class="text-xs text-green-600">
+            <i class="fas fa-arrow-up mr-1"></i>
+            +{{ stats.croissance_revenus|floatformat:1 }}% vs période précédente
+          </p>
+        </div>
+        <div class="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center">
+          <i class="fas fa-coins text-white text-lg"></i>
+        </div>
+      </div>
+    </div>
+
+    <!-- Collectes réalisées -->
+    <div class="bg-gradient-to-br from-blue-50 to-blue-100 border border-blue-200 rounded-lg p-6">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-sm font-medium text-blue-600">Collectes réalisées</p>
+          <p class="text-2xl font-bold text-blue-900">{{ stats.collectes_realisees }}</p>
+          <p class="text-xs text-blue-600">
+            <i class="fas fa-arrow-up mr-1"></i>
+            {{ stats.taux_realisation|floatformat:1 }}% de réalisation
+          </p>
+        </div>
+        <div class="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center">
+          <i class="fas fa-trash text-white text-lg"></i>
+        </div>
+      </div>
+    </div>
+
+    <!-- Clients actifs -->
+    <div class="bg-gradient-to-br from-purple-50 to-purple-100 border border-purple-200 rounded-lg p-6">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-sm font-medium text-purple-600">Clients actifs</p>
+          <p class="text-2xl font-bold text-purple-900">{{ stats.clients_actifs }}</p>
+          <p class="text-xs text-purple-600">
+            <i class="fas fa-users mr-1"></i>
+            {{ stats.nouveaux_clients }} nouveaux clients
+          </p>
+        </div>
+        <div class="w-12 h-12 bg-purple-500 rounded-full flex items-center justify-center">
+          <i class="fas fa-users text-white text-lg"></i>
+        </div>
+      </div>
+    </div>
+
+    <!-- Taux de satisfaction -->
+    <div class="bg-gradient-to-br from-orange-50 to-orange-100 border border-orange-200 rounded-lg p-6">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-sm font-medium text-orange-600">Efficacité</p>
+          <p class="text-2xl font-bold text-orange-900">{{ stats.efficacite|floatformat:1 }}%</p>
+          <p class="text-xs text-orange-600">
+            <i class="fas fa-chart-line mr-1"></i>
+            Performance globale
+          </p>
+        </div>
+        <div class="w-12 h-12 bg-orange-500 rounded-full flex items-center justify-center">
+          <i class="fas fa-star text-white text-lg"></i>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Graphiques -->
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    
+    <!-- Évolution des revenus -->
+    <div class="bg-white rounded-lg shadow-sm p-6">
+      <h3 class="text-lg font-semibold text-gray-800 mb-4">
+        <i class="fas fa-chart-line mr-2 text-primary"></i>
+        Évolution des revenus
+      </h3>
+      <div class="h-64">
+        <canvas id="revenusChart"></canvas>
+      </div>
+    </div>
+
+    <!-- Répartition par mode de paiement -->
+    <div class="bg-white rounded-lg shadow-sm p-6">
+      <h3 class="text-lg font-semibold text-gray-800 mb-4">
+        <i class="fas fa-chart-pie mr-2 text-primary"></i>
+        Modes de paiement
+      </h3>
+      <div class="h-64">
+        <canvas id="paiementsChart"></canvas>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Performance par agent -->
+  <div class="bg-white rounded-lg shadow-sm p-6">
+    <h3 class="text-lg font-semibold text-gray-800 mb-4">
+      <i class="fas fa-user-tie mr-2 text-primary"></i>
+      Performance des agents
+    </h3>
+    
+    <div class="overflow-x-auto">
+      <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+          <tr>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Agent</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Zone</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Collectes</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Paiements</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Performance</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Note</th>
+          </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+          {% for agent in agents_performance %}
+          <tr class="hover:bg-gray-50">
+            <td class="px-6 py-4 whitespace-nowrap">
+              <div class="flex items-center">
+                <img class="h-10 w-10 rounded-full" 
+                     src="https://ui-avatars.com/api/?name={{ agent.nom }}&background=0f766e&color=ffffff" 
+                     alt="{{ agent.nom }}">
+                <div class="ml-4">
+                  <div class="text-sm font-medium text-gray-900">{{ agent.nom }}</div>
+                  <div class="text-sm text-gray-500">{{ agent.type_agent|title }}</div>
+                </div>
+              </div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+              {{ agent.zone|default:"Toutes zones" }}
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+              {{ agent.collectes_realisees }}/{{ agent.collectes_prevues }}
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+              {{ agent.paiements_collectes|floatformat:0 }} FCFA
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+              <div class="flex items-center">
+                <div class="flex-1 bg-gray-200 rounded-full h-2 mr-2">
+                  <div class="bg-primary h-2 rounded-full" style="width: {{ agent.performance }}%"></div>
+                </div>
+                <span class="text-sm font-medium text-gray-900">{{ agent.performance|floatformat:0 }}%</span>
+              </div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+              {% if agent.performance >= 90 %}
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                  <i class="fas fa-star mr-1"></i>Excellent
+                </span>
+              {% elif agent.performance >= 75 %}
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                  <i class="fas fa-thumbs-up mr-1"></i>Bon
+                </span>
+              {% elif agent.performance >= 60 %}
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                  <i class="fas fa-exclamation-triangle mr-1"></i>Moyen
+                </span>
+              {% else %}
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                  <i class="fas fa-times mr-1"></i>Faible
+                </span>
+              {% endif %}
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="6" class="px-6 py-4 text-center text-gray-500">
+              <i class="fas fa-info-circle mr-2"></i>
+              Aucune donnée de performance disponible pour cette période
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Top zones performantes -->
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    
+    <!-- Zones les plus rentables -->
+    <div class="bg-white rounded-lg shadow-sm p-6">
+      <h3 class="text-lg font-semibold text-gray-800 mb-4">
+        <i class="fas fa-map-marked-alt mr-2 text-primary"></i>
+        Zones les plus rentables
+      </h3>
+      
+      <div class="space-y-4">
+        {% for zone in top_zones %}
+        <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+          <div class="flex items-center space-x-3">
+            <div class="w-8 h-8 bg-primary text-white rounded-full flex items-center justify-center text-sm font-bold">
+              {{ forloop.counter }}
+            </div>
+            <div>
+              <p class="font-medium text-gray-900">{{ zone.nom }}</p>
+              <p class="text-sm text-gray-500">{{ zone.clients_count }} clients</p>
+            </div>
+          </div>
+          <div class="text-right">
+            <p class="font-semibold text-primary">{{ zone.revenus|floatformat:0 }} FCFA</p>
+            <p class="text-sm text-gray-500">{{ zone.taux_collecte|floatformat:1 }}% collecté</p>
+          </div>
+        </div>
+        {% empty %}
+        <p class="text-gray-500 text-center py-8">
+          <i class="fas fa-info-circle mr-2"></i>
+          Aucune donnée de zone disponible
+        </p>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- Indicateurs de qualité -->
+    <div class="bg-white rounded-lg shadow-sm p-6">
+      <h3 class="text-lg font-semibold text-gray-800 mb-4">
+        <i class="fas fa-shield-alt mr-2 text-primary"></i>
+        Indicateurs de qualité
+      </h3>
+      
+      <div class="space-y-4">
+        
+        <!-- Ponctualité -->
+        <div class="flex items-center justify-between">
+          <span class="text-sm font-medium text-gray-700">Ponctualité des collectes</span>
+          <div class="flex items-center space-x-2">
+            <div class="w-24 bg-gray-200 rounded-full h-2">
+              <div class="bg-green-500 h-2 rounded-full" style="width: {{ indicateurs.ponctualite }}%"></div>
+            </div>
+            <span class="text-sm font-semibold text-gray-900">{{ indicateurs.ponctualite|floatformat:0 }}%</span>
+          </div>
+        </div>
+
+        <!-- Taux de réclamations -->
+        <div class="flex items-center justify-between">
+          <span class="text-sm font-medium text-gray-700">Taux de réclamations</span>
+          <div class="flex items-center space-x-2">
+            <div class="w-24 bg-gray-200 rounded-full h-2">
+              <div class="bg-red-500 h-2 rounded-full" style="width: {{ indicateurs.reclamations }}%"></div>
+            </div>
+            <span class="text-sm font-semibold text-gray-900">{{ indicateurs.reclamations|floatformat:1 }}%</span>
+          </div>
+        </div>
+
+        <!-- Taux de recouvrement -->
+        <div class="flex items-center justify-between">
+          <span class="text-sm font-medium text-gray-700">Taux de recouvrement</span>
+          <div class="flex items-center space-x-2">
+            <div class="w-24 bg-gray-200 rounded-full h-2">
+              <div class="bg-blue-500 h-2 rounded-full" style="width: {{ indicateurs.recouvrement }}%"></div>
+            </div>
+            <span class="text-sm font-semibold text-gray-900">{{ indicateurs.recouvrement|floatformat:0 }}%</span>
+          </div>
+        </div>
+
+        <!-- Satisfaction client -->
+        <div class="flex items-center justify-between">
+          <span class="text-sm font-medium text-gray-700">Satisfaction client</span>
+          <div class="flex items-center space-x-2">
+            <div class="w-24 bg-gray-200 rounded-full h-2">
+              <div class="bg-yellow-500 h-2 rounded-full" style="width: {{ indicateurs.satisfaction }}%"></div>
+            </div>
+            <span class="text-sm font-semibold text-gray-900">{{ indicateurs.satisfaction|floatformat:0 }}%</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<!-- Chart.js pour les graphiques -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+// Configuration des couleurs ETE
+const colors = {
+  primary: '#0f766e',
+  primaryLight: '#14b8a6',
+  secondary: '#1e3a8a',
+  success: '#059669',
+  warning: '#d97706',
+  danger: '#dc2626'
+};
+
+// Graphique d'évolution des revenus
+const revenusCtx = document.getElementById('revenusChart').getContext('2d');
+new Chart(revenusCtx, {
+  type: 'line',
+  data: {
+    labels: {{ revenus_evolution.labels|safe }},
+    datasets: [{
+      label: 'Revenus (FCFA)',
+      data: {{ revenus_evolution.data|safe }},
+      borderColor: colors.primary,
+      backgroundColor: colors.primaryLight + '20',
+      borderWidth: 3,
+      fill: true,
+      tension: 0.4
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    scales: {
+      y: {
+        beginAtZero: true,
+        ticks: {
+          callback: function(value) {
+            return new Intl.NumberFormat('fr-FR').format(value) + ' F';
+          }
+        }
+      }
+    },
+    plugins: {
+      legend: {
+        display: false
+      },
+      tooltip: {
+        callbacks: {
+          label: function(context) {
+            return new Intl.NumberFormat('fr-FR').format(context.parsed.y) + ' FCFA';
+          }
+        }
+      }
+    }
+  }
+});
+
+// Graphique des modes de paiement
+const paiementsCtx = document.getElementById('paiementsChart').getContext('2d');
+new Chart(paiementsCtx, {
+  type: 'doughnut',
+  data: {
+    labels: {{ paiements_repartition.labels|safe }},
+    datasets: [{
+      data: {{ paiements_repartition.data|safe }},
+      backgroundColor: [
+        colors.primary,
+        colors.secondary,
+        colors.success,
+        colors.warning,
+        colors.danger,
+        '#6366f1'
+      ],
+      borderWidth: 2,
+      borderColor: '#ffffff'
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        position: 'bottom',
+        labels: {
+          padding: 20,
+          usePointStyle: true
+        }
+      },
+      tooltip: {
+        callbacks: {
+          label: function(context) {
+            const percentage = ((context.parsed / context.dataset.data.reduce((a, b) => a + b, 0)) * 100).toFixed(1);
+            return context.label + ': ' + percentage + '%';
+          }
+        }
+      }
+    }
+  }
+});
+
+// Fonction d'export PDF
+function exportReport() {
+  // Simulation d'export - à implémenter côté serveur
+  alert('Fonctionnalité d\'export PDF en cours de développement...');
+  
+  // Exemple d'implémentation future:
+  // window.open('/administration/rapports/export-pdf/?periode={{ periode }}&date_debut={{ date_debut }}&date_fin={{ date_fin }}');
+}
+
+// Auto-refresh des données toutes les 5 minutes
+setInterval(function() {
+  if (document.hasFocus()) {
+    location.reload();
+  }
+}, 300000);
+</script>
+{% endblock %}
